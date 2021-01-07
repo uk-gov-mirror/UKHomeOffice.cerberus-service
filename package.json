@@ -4,7 +4,7 @@
   "description": "Cerberus frontend service for cerberus-api",
   "main": "index.js",
   "scripts": {
-    "build:prod": "webpack --mode=production",
+    "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
     "start": "webpack-dev-server --watch-poll --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1"
