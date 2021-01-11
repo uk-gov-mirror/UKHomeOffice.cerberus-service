@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang='en' class='govuk-template'>
   <head>
     <meta charset='UTF-8'>
     <title>Cerberus Service</title>
+    <link rel='stylesheet' href='/assets/styles/main.css'>
   </head>
   <body>
+    <script>document.body.className = ((document.body.className) ? document.body.className + ' js-enabled' : 'js-enabled');</script>
     <div id='root'></div>
+    <script src="/javascript/all.js"></script>
+    <script>window.GOVUKFrontend.initAll()</script>
   </body>
 </html>
