@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
-    "start": "webpack-dev-server --watch-poll --mode=development",
+    "start": "webpack serve --watch --mode=development",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/UKHomeOffice/cerberus-service#readme",
   "dependencies": {
+    "govuk-frontend": "^3.10.2",
     "react": "^17.0.1",
     "react-dom": "^17.0.1"
   },
@@ -28,9 +29,14 @@
     "@babel/preset-env": "^7.12.11",
     "@babel/preset-react": "^7.12.10",
     "babel-loader": "^8.2.2",
+    "copy-webpack-plugin": "^7.0.0",
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^4.5.0",
-    "webpack": "^4.41.6",
-    "webpack-cli": "^3.3.11",
+    "sass": "^1.32.2",
+    "sass-loader": "^10.1.0",
+    "webpack": "^5.12.1",
+    "webpack-cli": "^4.3.1",
     "webpack-dev-server": "^3.11.1"
   }
 }
+
