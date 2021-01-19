@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import Keycloak from 'keycloak-js';
+import React, { createContext, useState } from 'react';
 import { render } from 'react-dom';
 
+// app imports
+import Routes from './routes';
+import { ContextProvider } from './reducers';
 
-const App = () => {
-  return <p></p>;
-}
 
 render(
-  <App />,
+  <ContextProvider>
+    <Routes/>
+  </ContextProvider>,
   document.getElementById('root'),
-);
-
+)
