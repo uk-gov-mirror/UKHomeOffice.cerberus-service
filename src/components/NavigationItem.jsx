@@ -13,7 +13,6 @@ const NavigationItem = ({ href, children }) => {
         ? <a href={href} className="govuk-header__link">{children}</a>
         : <Link to={href} className="govuk-header__link">{children}</Link>
       }
-
     </li>
   )
 };
