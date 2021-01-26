@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useKeycloak } from '../../utils/keycloak';
+import { useKeycloak } from '../utils/keycloak';
 
 const HomePage = () => {
   const keycloak = useKeycloak();
