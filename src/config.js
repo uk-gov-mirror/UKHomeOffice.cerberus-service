@@ -9,8 +9,7 @@ const config = {
       onLoad: 'login-required',
       checkLoginIframe: false,
     },
-  }
+  },
 };
 
 export default config;
-
