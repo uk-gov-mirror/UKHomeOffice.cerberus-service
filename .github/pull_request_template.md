@@ -6,7 +6,7 @@
 
 \* Required
 
-- [ ] Up-to-date with master branch? \*
+- [ ] Up-to-date with main branch? \*
 
 - [ ] Does it have tests?
 
