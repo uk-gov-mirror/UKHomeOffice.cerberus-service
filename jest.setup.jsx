@@ -1,6 +1,5 @@
 import React from 'react';
 import '@testing-library/jest-dom'
-import 'regenerator-runtime/runtime';
 
 jest.mock('./src/utils/keycloak', () => ({
   KeycloakProvider: ({ children }) => children,
