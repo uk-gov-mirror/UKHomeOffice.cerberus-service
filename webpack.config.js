@@ -5,7 +5,6 @@ const webpack = require('webpack');
 
 module.exports = {
   devtool: 'source-map',
-  entry: ['./src/', './src/assets/styles/main.scss'],
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
@@ -24,13 +23,18 @@ module.exports = {
       {
         test: /\.(s*)css$/,
         use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader',
+        ],
+      },
+      {
+        test: /\.(png|jpg|gif|woff|svg|woff2)$/,
+        use: [
           {
             loader: 'file-loader',
-            options: {
-              name: 'assets/styles/[name].css',
-            },
+            options: {},
           },
-          'sass-loader',
         ],
       },
     ],
@@ -38,7 +42,6 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: 'node_modules/govuk-frontend/govuk/all.js', to: 'javascript/all.js' },
         { from: 'node_modules/govuk-frontend/govuk/assets', to: 'assets' },
       ],
     }),
@@ -52,3 +55,4 @@ module.exports = {
     new HtmlWebpackPlugin({ template: './src/index.html' }),
   ],
 };
+
