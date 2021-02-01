@@ -9,6 +9,7 @@ import FormProgress from '../forms/FormProgress';
 import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 import FormActions from '../forms/FormActions';
+import FieldSelect from '../forms/FieldSelect';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -36,6 +37,10 @@ const IssueTargetPage = () => {
             <h2 className="govuk-heading-m">General Target Information</h2>
 
             <FieldInput name="test" type="text" label="Test input" />
+            <FieldSelect name="testSelect" options={[
+              { label: 'Option A', value: 'a', },
+              { label: 'Option B', value: 'b', },
+            ]} />
           </FormStep>
 
           <FormStep name="two">
