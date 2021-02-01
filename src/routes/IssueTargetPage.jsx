@@ -14,7 +14,7 @@ const IssueTargetPage = () => {
         });
       }}
     >
-      <FieldInput name="test" type="text" />
+      <FieldInput name="test" type="text" label="Test input" required="Type some text" />
       <button type="submit">Submit</button>
     </Form>
   );
