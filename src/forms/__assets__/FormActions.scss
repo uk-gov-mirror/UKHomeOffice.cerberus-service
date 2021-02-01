@@ -1,0 +1,15 @@
+@import "~govuk-frontend/govuk/vendor/_sass-mq";
+@import "~govuk-frontend/govuk/settings/spacing";
+@import "~govuk-frontend/govuk/helpers/spacing";
+
+@include mq($from: tablet) {
+  .form-actions {
+    * {
+      vertical-align: baseline;
+    }
+
+    * + * {
+      margin-left: govuk-spacing(3);
+    }
+  }
+}
