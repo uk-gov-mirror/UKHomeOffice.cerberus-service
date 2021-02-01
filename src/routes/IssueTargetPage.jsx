@@ -5,6 +5,7 @@ import FieldInput from '../forms/FieldInput';
 const IssueTargetPage = () => {
   return (
     <Form
+      id="issue-target"
       onSubmit={async () => {
         await new Promise((resolve) => {
           setTimeout(() => {
