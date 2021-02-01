@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { FormContext } from '../forms/formContext';
+import { FormContext } from './formContext';
 import useForm from '../forms/useForm';
-
-const LoadingBox = ({ loading, children }) => (loading ? <div>Loading...</div> : children);
+import LoadingSpinner from './LoadingSpinner';
 
 function Form({
   initialValues = {},
@@ -33,9 +32,9 @@ function Form({
           formInstance.goForward()
         }}
       >
-        <LoadingBox loading={formInstance.isLoading}>
+        <LoadingSpinner loading={formInstance.isLoading}>
           {renderChildren()}
-        </LoadingBox>
+        </LoadingSpinner>
       </form>
     </FormContext.Provider>
   )
