@@ -3,6 +3,7 @@ import React, { useRef } from 'react';
 import { FormContext } from './formContext';
 import useForm from '../forms/useForm';
 import LoadingSpinner from './LoadingSpinner';
+import FormErrors from './FormErrors';
 
 const Form = ({
   id,
@@ -11,6 +12,7 @@ const Form = ({
   onSuccess = null,
   onCancel = null,
   scrollToTop = true,
+  showErrorSummary = true,
   children = null,
 }) => {
   const formInstance = useForm({
@@ -40,6 +42,7 @@ const Form = ({
         }}
       >
         <LoadingSpinner loading={formInstance.isLoading}>
+          {showErrorSummary && <FormErrors />}
           {renderChildren()}
         </LoadingSpinner>
       </form>
