@@ -15,12 +15,15 @@ const Layout = ({ children }) => (
       <div className="govuk-width-container ">
         <div className="govuk-footer__meta">
           <div
-            className="govuk-footer__meta-item govuk-footer__meta-item--grow">
-          </div>
+            className="govuk-footer__meta-item govuk-footer__meta-item--grow"
+          />
           <div className="govuk-footer__meta-item">
-            <a className="govuk-footer__link govuk-footer__copyright-logo"
-               href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">©
-              Crown copyright</a>
+            <a
+              className="govuk-footer__link govuk-footer__copyright-logo"
+              href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/"
+            >
+              © Crown copyright
+            </a>
           </div>
         </div>
       </div>
@@ -29,4 +32,3 @@ const Layout = ({ children }) => (
 );
 
 export default Layout;
-

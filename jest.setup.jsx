@@ -1,19 +1,19 @@
 import React from 'react';
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
 
 jest.mock('./src/utils/keycloak', () => ({
   KeycloakProvider: ({ children }) => children,
   useKeycloak: () => ({
     token: 'token',
-      authServerUrl: 'test',
-      realm: 'test',
-      clientId: 'client',
-      refreshToken: 'refreshToken',
-      tokenParsed: {
+    authServerUrl: 'test',
+    realm: 'test',
+    clientId: 'client',
+    refreshToken: 'refreshToken',
+    tokenParsed: {
       given_name: 'test',
-        family_name: 'test',
-        email: 'test',
-        realm_access: {
+      family_name: 'test',
+      email: 'test',
+      realm_access: {
         roles: ['test'],
       },
       team_id: '21',
@@ -28,4 +28,3 @@ jest.mock('react-router-dom', () => ({
   })),
   Link: ({ children, to, ...props }) => <a href={to} {...props}>{children}</a>,
 }));
-

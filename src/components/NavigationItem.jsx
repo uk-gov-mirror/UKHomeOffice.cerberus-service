@@ -11,10 +11,9 @@ const NavigationItem = ({ href, children }) => {
     <li className={className}>
       {/^https?:\/\//.test(href)
         ? <a href={href} className="govuk-header__link">{children}</a>
-        : <Link to={href} className="govuk-header__link">{children}</Link>
-      }
+        : <Link to={href} className="govuk-header__link">{children}</Link>}
     </li>
-  )
+  );
 };
 
 export default NavigationItem;

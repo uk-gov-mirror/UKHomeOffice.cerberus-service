@@ -16,10 +16,9 @@ const FormErrors = () => {
       title="There is a problem"
       description={isEmpty(errors) ? String(submissionError) : null}
       onHandleErrorClick={(targetName) => {
-        const $el =
-          document.querySelector(`[name="${targetName}"]`) ??
-          document.querySelector(`#field-${targetName} input`) ??
-          document.querySelector(`#field-${targetName}`);
+        const $el = document.querySelector(`[name="${targetName}"]`)
+          ?? document.querySelector(`#field-${targetName} input`)
+          ?? document.querySelector(`#field-${targetName}`);
         if ($el) {
           $el.scrollIntoView();
           $el.focus();

@@ -1,7 +1,7 @@
-import React, { useRef } from 'react';
+import React from 'react';
 
 import { FormContext } from './formContext';
-import useForm from '../forms/useForm';
+import useForm from './useForm';
 import LoadingSpinner from './LoadingSpinner';
 import FormErrors from './FormErrors';
 
@@ -29,15 +29,15 @@ const Form = ({
       return children(formInstance);
     }
     return children;
-  }
+  };
 
   return (
     <FormContext.Provider value={formInstance}>
       <form
         id={id}
-        noValidate={true}
+        noValidate
         onSubmit={(e) => {
-          e.preventDefault()
+          e.preventDefault();
           formInstance.goForward();
         }}
       >

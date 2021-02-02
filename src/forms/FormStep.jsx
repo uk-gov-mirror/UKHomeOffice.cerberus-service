@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react'
+import React, { useEffect } from 'react';
 
-import { useFormContext } from './formContext'
-import FormActions from './FormActions'
+import { useFormContext } from './formContext';
+import FormActions from './FormActions';
 import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 
-const FormStep = ({ name, backButton = null, forwardButton = null, cancelButton = null, children }) => {
+const FormStep = ({
+  name, backButton = null, forwardButton = null, cancelButton = null, children,
+}) => {
   const {
     cancel,
     currentStep,
