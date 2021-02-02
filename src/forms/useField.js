@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
-import { isEmpty } from 'lodash'
+import { useEffect } from 'react';
+import { isEmpty } from 'lodash';
 
-import { useFormContext } from './formContext'
+import { useFormContext } from './formContext';
 
 const useField = ({
   name,
@@ -15,29 +15,29 @@ const useField = ({
     setFieldTouched,
     setFieldValue,
     getFieldState,
-  } = useFormContext()
+  } = useFormContext();
 
   function prepareValidators() {
     const validators = Array.isArray(validate)
       ? validate
-      : [validate].filter((v) => v)
+      : [validate].filter((v) => v);
 
     if (required) {
-      validators.unshift((value) => (isEmpty(value) ? required : null))
+      validators.unshift((value) => (isEmpty(value) ? required : null));
     }
 
-    return validators
+    return validators;
   }
 
   useEffect(() => {
-    registerField({ name, defaultValue, validate: prepareValidators() })
+    registerField({ name, defaultValue, validate: prepareValidators() });
 
     return () => {
-      deregisterField(name)
-    }
-  }, [name])
+      deregisterField(name);
+    };
+  }, [name]);
 
-  const fieldState = getFieldState(name)
+  const fieldState = getFieldState(name);
 
   return {
     name,
@@ -46,7 +46,7 @@ const useField = ({
     touched: fieldState.touched,
     onChange: (e) => setFieldValue(name, e.target.value),
     onBlur: () => setFieldTouched(name, true),
-  }
-}
+  };
+};
 
-export default useField
+export default useField;

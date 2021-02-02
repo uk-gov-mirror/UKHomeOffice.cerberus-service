@@ -2,15 +2,16 @@ import React from 'react';
 import { useFormContext } from './formContext';
 
 const FormBack = () => {
-  const{ isFirstStep, goBack } = useFormContext();
+  const { isFirstStep, goBack } = useFormContext();
   return !isFirstStep() && (
     <a
-      href="#"
+      href="#back"
       onClick={(e) => {
         e.preventDefault();
         goBack();
       }}
-      className="govuk-back-link">
+      className="govuk-back-link"
+    >
       Back
     </a>
   );

@@ -7,7 +7,7 @@ const HomePage = () => {
 
   useEffect(() => {
     keycloak.loadUserInfo().then(setUser);
-  }, [])
+  }, []);
 
   if (!user) {
     return null;
@@ -19,4 +19,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import useField from '../forms/useField';
+import useField from './useField';
 import Select from '../govuk/Select';
 
 const FieldSelect = ({
@@ -12,7 +12,9 @@ const FieldSelect = ({
   defaultValue,
   ...attributes
 }) => {
-  const { value, error, touched, onChange, onBlur } = useField({
+  const {
+    value, error, onChange, onBlur,
+  } = useField({
     name,
     validate,
     required,
@@ -31,6 +33,6 @@ const FieldSelect = ({
       {...attributes}
     />
   );
-}
+};
 
 export default FieldSelect;

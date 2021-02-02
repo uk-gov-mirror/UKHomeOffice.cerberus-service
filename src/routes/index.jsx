@@ -7,8 +7,8 @@ import Layout from '../components/Layout';
 import HomePage from './HomePage';
 import IssueTargetPage from './IssueTargetPage';
 
-export const AppRouter = () => {
-  const keycloak = useKeycloak()
+const AppRouter = () => {
+  const keycloak = useKeycloak();
 
   initAll();
 
@@ -23,7 +23,7 @@ export const AppRouter = () => {
         <Route path="/issue-target" exact component={IssueTargetPage} />
       </Layout>
     </BrowserRouter>
-  )
-}
+  );
+};
 
-export default AppRouter
+export default AppRouter;

@@ -5,8 +5,12 @@ import Label from './Label';
 import Hint from './Hint';
 import ErrorMessage from './ErrorMessage';
 
-const FormGroup = ({ inputId, className, label, hint, errorMessage, describedBy, children }) => {
-  let hintWithId, errorMessageWithId, labelWithId;
+const FormGroup = ({
+  inputId, className, label, hint, errorMessage, describedBy, children,
+}) => {
+  let hintWithId;
+  let errorMessageWithId;
+  let labelWithId;
   const describeByElements = [describedBy];
 
   if (hint) {
@@ -23,7 +27,7 @@ const FormGroup = ({ inputId, className, label, hint, errorMessage, describedBy,
     describeByElements.push(errorId);
     errorMessageWithId = typeof errorMessage === 'string' || React.isValidElement(errorMessage)
       ? <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>
-      : <ErrorMessage id={errorId}{...errorMessage} />;
+      : <ErrorMessage id={errorId} {...errorMessage} />;
   }
 
   if (label) {
@@ -40,6 +44,6 @@ const FormGroup = ({ inputId, className, label, hint, errorMessage, describedBy,
       {children({ describedBy: describeByElements.join(' ') })}
     </div>
   );
-}
+};
 
 export default FormGroup;

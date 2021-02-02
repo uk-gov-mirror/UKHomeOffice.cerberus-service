@@ -1,6 +1,6 @@
 import React from 'react';
 
-import useField from '../forms/useField';
+import useField from './useField';
 import Input from '../govuk/Input';
 
 const FieldInput = ({
@@ -12,7 +12,9 @@ const FieldInput = ({
   defaultValue,
   ...attributes
 }) => {
-  const { value, error, onChange, onBlur } = useField({
+  const {
+    value, error, onChange, onBlur,
+  } = useField({
     name,
     validate,
     required,

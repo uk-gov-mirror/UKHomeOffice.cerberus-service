@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import LoadingSpinner from '../LoadingSpinner';
 
 test('shows spinner with prop loading=true', () => {
-  render(<LoadingSpinner loading={true}>Test</LoadingSpinner>);
+  render(<LoadingSpinner loading>Test</LoadingSpinner>);
   expect(screen.getByText('Loading')).toBeInTheDOM();
   expect(screen.getByText('Test')).toBeInTheDOM();
 });

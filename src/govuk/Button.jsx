@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import classNames from 'classnames';
 import ButtonJS from 'govuk-frontend/govuk/components/button/button';
 
-const Button = ({ isStartButton = false, component = 'button',
-                  preventDoubleClick = null, className, children, ...attributes }) => {
+const Button = ({
+  isStartButton = false, type = 'submit', component = 'button',
+  preventDoubleClick = null, className, children, ...attributes
+}) => {
   const buttonRef = React.createRef();
   useEffect(() => {
     new ButtonJS(buttonRef.current).init();
@@ -11,6 +13,7 @@ const Button = ({ isStartButton = false, component = 'button',
 
   const buttonAttributes = {
     ...attributes,
+    type,
     'data-module': 'govuk-button',
     'data-prevent-double-click': preventDoubleClick,
   };
@@ -23,10 +26,10 @@ const Button = ({ isStartButton = false, component = 'button',
   const commonAttributes = {
     className: classNames(className, 'govuk-button', {
       'govuk-button--disabled': attributes.disabled,
-      'govuk-button--start':  isStartButton,
+      'govuk-button--start': isStartButton,
     }),
     ref: buttonRef,
-  }
+  };
 
   const startButtonIcon = isStartButton ? (
     <svg className="govuk-button__start-icon" xmlns="http://www.w3.org/2000/svg" width="17.5" height="19" viewBox="0 0 33 40" role="presentation" focusable="false">
@@ -49,21 +52,18 @@ const Button = ({ isStartButton = false, component = 'button',
         {startButtonIcon}
       </component>
     );
-  } else if (component === 'button') {
+  } if (component === 'button') {
     return (
       <button {...buttonAttributes} {...commonAttributes}>
         {children}
         {startButtonIcon}
       </button>
     );
-  } else if (component === 'input') {
-    if (!attributes.type) {
-      buttonAttributes.type = 'submit';
-    }
+  } if (component === 'input') {
     return <input value={children} {...buttonAttributes} {...commonAttributes} />;
   }
 
   return null;
-}
+};
 
 export default Button;

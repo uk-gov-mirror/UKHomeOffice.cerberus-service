@@ -21,7 +21,7 @@ const IssueTargetPage = () => {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve({});
-          }, 2000)
+          }, 2000);
         });
       }}
       onCancel={() => history.push('/')}
@@ -37,10 +37,13 @@ const IssueTargetPage = () => {
             <h2 className="govuk-heading-m">General Target Information</h2>
 
             <FieldInput name="test" type="text" label="Test input" />
-            <FieldSelect name="testSelect" options={[
-              { label: 'Option A', value: 'a', },
-              { label: 'Option B', value: 'b', },
-            ]} />
+            <FieldSelect
+              name="testSelect"
+              options={[
+                { label: 'Option A', value: 'a' },
+                { label: 'Option B', value: 'b' },
+              ]}
+            />
           </FormStep>
 
           <FormStep name="two">
@@ -50,7 +53,7 @@ const IssueTargetPage = () => {
 
           <FormActions>
             <Button>{isLastStep() ? 'Submit' : 'Save and continue'}</Button>
-            <SecondaryButton onClick={(e) => { e.preventDefault(); cancel() }}>Cancel</SecondaryButton>
+            <SecondaryButton onClick={(e) => { e.preventDefault(); cancel(); }}>Cancel</SecondaryButton>
           </FormActions>
         </>
       )}

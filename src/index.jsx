@@ -9,4 +9,4 @@ render(
     <AppRouter />
   </KeycloakProvider>,
   document.getElementById('root'),
-)
+);

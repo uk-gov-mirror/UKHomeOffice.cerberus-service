@@ -38,7 +38,7 @@ module.exports = {
     'arrow-body-style': 'off',
     'consistent-return': 'off',
     'func-names': ['error', 'never'],
-    'max-len': ['error', { code: 185 }],
+    'max-len': ['error', { code: 185, ignoreTemplateLiterals: true, ignoreStrings: true }],
     'no-underscore-dangle': 'off',
     'no-param-reassign': 'off',
     'no-restricted-globals': 'off',
@@ -47,12 +47,16 @@ module.exports = {
     'prefer-const': 'off',
     'prefer-destructuring': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    'react/button-has-type': 'off',
+    'react/display-name': 'off',
+    'react/no-array-index-key': 'off',
     'react/prop-types': 'off',
     'react/jsx-props-no-spreading': 'off',
+    'react/jsx-one-expression-per-line': 'off',
   },
   overrides: [
     {
-      files: ['*.spec.js', 'commands.js', 'index.js'],
+      files: ['*.test.js'],
       rules: {
         'jest/valid-expect': 0,
         'jest/valid-expect-in-promise': 0,

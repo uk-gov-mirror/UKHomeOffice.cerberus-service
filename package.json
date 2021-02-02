@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack --mode=production",
     "build:dev": "webpack --mode=development",
-    "lint": "eslint -f table",
+    "lint": "eslint -f table --ext=js,jsx",
     "start": "webpack serve --watch --mode=development --history-api-fallback",
     "test": "jest"
   },
