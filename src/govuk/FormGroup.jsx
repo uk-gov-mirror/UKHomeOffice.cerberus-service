@@ -1,12 +1,21 @@
 import React from 'react';
 import classNames from 'classnames';
+import { isEmpty } from 'lodash';
 
 import Label from './Label';
 import Hint from './Hint';
 import ErrorMessage from './ErrorMessage';
+import Fieldset from './Fieldset';
+
+const FieldsetWrapper = ({ children, ...attributes }) => {
+  if (isEmpty(attributes)) {
+    return children;
+  }
+  return <Fieldset {...attributes}>{children}</Fieldset>;
+};
 
 const FormGroup = ({
-  inputId, className, label, hint, errorMessage, describedBy, children,
+  inputId, className, label, hint, errorMessage, describedBy, fieldset, children, ...attributes
 }) => {
   let hintWithId;
   let errorMessageWithId;
@@ -37,11 +46,13 @@ const FormGroup = ({
   }
 
   return (
-    <div className={classNames(className, 'govuk-form-group', { 'govuk-form-group--error': errorMessage })}>
-      {labelWithId}
-      {hintWithId}
-      {errorMessageWithId}
-      {children({ describedBy: describeByElements.join(' ') })}
+    <div className={classNames(className, 'govuk-form-group', { 'govuk-form-group--error': errorMessage })} {...attributes}>
+      <FieldsetWrapper {...fieldset}>
+        {labelWithId}
+        {hintWithId}
+        {errorMessageWithId}
+        {children({ formGroupDescribeBy: describeByElements.join(' ') })}
+      </FieldsetWrapper>
     </div>
   );
 };
