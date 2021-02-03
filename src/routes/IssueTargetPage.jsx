@@ -10,6 +10,8 @@ import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 import FormActions from '../forms/FormActions';
 import FieldSelect from '../forms/FieldSelect';
+import Radios from '../govuk/Radios';
+import FieldRadios from '../forms/FieldRadios';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -26,7 +28,7 @@ const IssueTargetPage = () => {
       }}
       onCancel={() => history.push('/')}
     >
-      {({ isLastStep, cancel }) => (
+      {({ values, isLastStep, cancel }) => (
         <>
           <FormBack />
           <FormProgress />
@@ -35,6 +37,17 @@ const IssueTargetPage = () => {
 
           <FormStep name="one">
             <h2 className="govuk-heading-m">General Target Information</h2>
+
+            <FieldRadios
+              legend="What type of RoRo movement is this?"
+              name="roroFreightType"
+              required="Chose RoRo movement type"
+              inline
+              items={[
+                { label: 'Accompanied', value: 'accompanied' },
+                { label: 'Unaccompanied', value: 'unaccompanied' },
+              ]}
+            />
 
             <FieldInput name="test" type="text" label="Test input" />
             <FieldSelect
@@ -48,8 +61,15 @@ const IssueTargetPage = () => {
 
           <FormStep name="two">
             <h2 className="govuk-heading-m">Second step</h2>
-            TODO
+
+            <FieldInput name="test2" type="text" label="Test input 2" />
           </FormStep>
+
+          <pre>
+            <code>
+              {JSON.stringify(values, 0, 2)}
+            </code>
+          </pre>
 
           <FormActions>
             <Button>{isLastStep() ? 'Submit' : 'Save and continue'}</Button>
