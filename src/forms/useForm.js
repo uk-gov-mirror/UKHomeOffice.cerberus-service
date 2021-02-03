@@ -13,7 +13,6 @@ const useForm = ({
   const rawStorage = localStorage.getItem(id);
   const storage = rawStorage ? JSON.parse(rawStorage) : {};
   const [values, setValues] = useState(storage?.values || defaultValues);
-  const [touched, setTouched] = useState({});
   const [errors, setErrors] = useState({});
   const [fields, setFields] = useState({});
   const [steps, setSteps] = useState([]);
@@ -26,7 +25,6 @@ const useForm = ({
   const formState = {
     id,
     values,
-    touched,
     errors,
     fields,
     steps,
@@ -55,7 +53,6 @@ const useForm = ({
   const getFieldState = (name) => {
     return {
       value: values[name] || '',
-      touched: touched[name] || false,
       error: errors[name] || null,
     };
   };
@@ -87,18 +84,15 @@ const useForm = ({
   const validateForm = (fieldNames = []) => {
     const fieldsToValidate = fieldNames.length > 0 ? fieldNames : Object.keys(fields);
     const newErrors = {};
-    const newTouched = {};
 
     fieldsToValidate.forEach((name) => {
       const error = validateField(name);
       if (error) {
         newErrors[name] = error;
       }
-      newTouched[name] = true;
     });
 
     setErrors(newErrors);
-    setTouched(newTouched);
 
     return newErrors;
   };
@@ -110,19 +104,14 @@ const useForm = ({
 
     return { ...prevValues, [name]: fieldValue };
   });
-  const setFieldTouched = (name, fieldTouched) => {
-    setTouched((prevTouched) => ({ ...prevTouched, [name]: fieldTouched }));
-  };
   const setFieldError = (name, error) => setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
 
   const registerField = (field) => setFields((prevFields) => {
     const { name, defaultValue } = field;
 
-    if (defaultValue) {
+    if (defaultValue && !values[name]) {
       setFieldValue(name, defaultValue);
     }
-
-    setFieldTouched(name, false);
 
     if (!(name in prevFields)) {
       return {
@@ -134,6 +123,11 @@ const useForm = ({
   });
 
   const deregisterField = (name) => {
+    setValues((prevValues) => {
+      const newValues = { ...prevValues };
+      delete newValues[name];
+      return newValues;
+    });
     setFields((prevFields) => {
       const newFields = { ...prevFields };
       delete newFields[name];
@@ -143,11 +137,6 @@ const useForm = ({
       const newErrors = { ...prevErrors };
       delete newErrors[name];
       return newErrors;
-    });
-    setTouched((prevTouched) => {
-      const newTouched = { ...prevTouched };
-      delete newTouched[name];
-      return newTouched;
     });
   };
 
@@ -224,7 +213,6 @@ const useForm = ({
     registerField,
     deregisterField,
     setFieldValue,
-    setFieldTouched,
     setFieldError,
     getFieldState,
     validateForm,
@@ -241,6 +229,7 @@ const useForm = ({
     getStepIndex,
     isLastStep,
     isFirstStep,
+    setValues,
   };
 };
 
