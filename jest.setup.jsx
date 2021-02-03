@@ -28,3 +28,5 @@ jest.mock('react-router-dom', () => ({
   })),
   Link: ({ children, to, ...props }) => <a href={to} {...props}>{children}</a>,
 }));
+
+global.scrollTo = jest.fn();
