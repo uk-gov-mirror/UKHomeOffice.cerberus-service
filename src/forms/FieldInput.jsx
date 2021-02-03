@@ -13,7 +13,7 @@ const FieldInput = ({
   ...attributes
 }) => {
   const {
-    value, error, onChange, onBlur,
+    value, error, onChange,
   } = useField({
     name,
     validate,
@@ -29,7 +29,6 @@ const FieldInput = ({
       name={name}
       defaultValue={value || defaultValue}
       onChange={onChange}
-      onBlur={onBlur}
       errorMessage={error}
       {...attributes}
     />

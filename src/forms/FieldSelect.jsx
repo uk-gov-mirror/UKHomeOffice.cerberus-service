@@ -13,7 +13,7 @@ const FieldSelect = ({
   ...attributes
 }) => {
   const {
-    value, error, onChange, onBlur,
+    value, error, onChange,
   } = useField({
     name,
     validate,
@@ -26,9 +26,8 @@ const FieldSelect = ({
       key={name}
       id={id || `field-${name}`}
       name={name}
-      defaultValue={value || defaultValue}
+      defaultValue={value}
       onChange={onChange}
-      onBlur={onBlur}
       errorMessage={error}
       {...attributes}
     />

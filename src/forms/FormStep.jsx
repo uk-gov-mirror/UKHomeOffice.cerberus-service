@@ -16,12 +16,19 @@ const FormStep = ({
     deregisterStep,
     getStepIndex,
     isFirstStep,
+    values,
+    setValues,
   } = useFormContext();
 
   useEffect(() => {
     registerStep(name);
     return () => deregisterStep(name);
   }, [name]);
+
+  // Preserve form values between steps.
+  useEffect(() => {
+    setValues(values);
+  }, [currentStep]);
 
   const index = getStepIndex(name);
 

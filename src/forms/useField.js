@@ -12,7 +12,6 @@ const useField = ({
   const {
     registerField,
     deregisterField,
-    setFieldTouched,
     setFieldValue,
     getFieldState,
   } = useFormContext();
@@ -43,9 +42,7 @@ const useField = ({
     name,
     value: fieldState.value,
     error: fieldState.error,
-    touched: fieldState.touched,
     onChange: (e) => setFieldValue(name, e.target.value),
-    onBlur: () => setFieldTouched(name, true),
   };
 };
 
