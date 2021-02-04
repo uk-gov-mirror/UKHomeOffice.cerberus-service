@@ -10,8 +10,8 @@ import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 import FormActions from '../forms/FormActions';
 import FieldSelect from '../forms/FieldSelect';
-import Radios from '../govuk/Radios';
 import FieldRadios from '../forms/FieldRadios';
+import FieldAddress from '../forms/FieldAddress';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -37,6 +37,8 @@ const IssueTargetPage = () => {
 
           <FormStep name="one">
             <h2 className="govuk-heading-m">General Target Information</h2>
+
+            <FieldAddress name="testAddress" />
 
             <FieldRadios
               legend="What type of RoRo movement is this?"

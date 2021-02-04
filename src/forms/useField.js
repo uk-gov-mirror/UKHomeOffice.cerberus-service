@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import { isEmpty } from 'lodash';
 
 import { useFormContext } from './formContext';
+import { requireValue } from './validators';
 
 const useField = ({
   name,
@@ -16,17 +16,17 @@ const useField = ({
     getFieldState,
   } = useFormContext();
 
-  function prepareValidators() {
+  const prepareValidators = () => {
     const validators = Array.isArray(validate)
       ? validate
       : [validate].filter((v) => v);
 
     if (required) {
-      validators.unshift((value) => (isEmpty(value) ? required : null));
+      validators.unshift(requireValue(required));
     }
 
     return validators;
-  }
+  };
 
   useEffect(() => {
     registerField({ name, defaultValue, validate: prepareValidators() });
