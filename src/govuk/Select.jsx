@@ -14,12 +14,12 @@ const Select = ({
   describedBy, emptyOption = ' ', options, ...attributes
 }) => (
   <FormGroup inputId={id} hint={hint} label={label} errorMessage={errorMessage} describedBy={describedBy} {...formGroup}>
-    {({ formGroupDescribeBy }) => (
+    {({ formGroupDescribedBy }) => (
       <select
         id={id}
         className={classNames(className, 'govuk-select', { 'govuk-select--error': errorMessage })}
         defaultValue={defaultValue}
-        aria-describedby={formGroupDescribeBy}
+        aria-describedby={formGroupDescribedBy}
         {...attributes}
       >
         {emptyOption && (

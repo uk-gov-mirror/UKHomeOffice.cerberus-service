@@ -27,7 +27,7 @@ const FieldInput = ({
       id={id || `field-${name}`}
       type={type}
       name={name}
-      defaultValue={value || defaultValue}
+      defaultValue={value}
       onChange={onChange}
       errorMessage={error}
       {...attributes}
