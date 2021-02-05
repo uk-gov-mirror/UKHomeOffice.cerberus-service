@@ -23,16 +23,9 @@ const Autocomplete = ({
     ...props,
   };
 
-  return options ? (
-    <Select
-      options={options}
-      {...customisedProps}
-    />
-  ) : (
-    <AsyncSelect
-      {...customisedProps}
-    />
-  );
+  return options
+    ? <Select options={options} {...customisedProps} />
+    : <AsyncSelect {...customisedProps} />;
 };
 
 export default Autocomplete;

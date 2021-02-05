@@ -1,21 +1,21 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Form from '../Form';
-import FieldDate from '../FieldDate';
+import FieldDateTime from '../FieldDateTime';
 
 const type = (label, text) => fireEvent.input(screen.getByLabelText(label), {
   target: { value: text },
 });
 
 test('renders long date field', () => {
-  render(<Form><FieldDate name="testDate" /></Form>);
+  render(<Form><FieldDateTime name="testDate" /></Form>);
   expect(screen.getByLabelText('Day')).toBeInTheDocument();
   expect(screen.getByLabelText('Month')).toBeInTheDocument();
   expect(screen.getByLabelText('Year')).toBeInTheDocument();
 });
 
 test('renders short date field', () => {
-  render(<Form><FieldDate isShort name="testDate" /></Form>);
+  render(<Form><FieldDateTime isShort name="testDate" /></Form>);
   expect(screen.queryByLabelText('Day')).toBeNull();
   expect(screen.getByLabelText('Month')).toBeInTheDocument();
   expect(screen.getByLabelText('Year')).toBeInTheDocument();
@@ -24,7 +24,7 @@ test('renders short date field', () => {
 test('validates when the field is required but empty', () => {
   render(
     <Form>
-      <FieldDate required="Date is required" name="testDate" />
+      <FieldDateTime required="Date is required" name="testDate" />
       <button>Submit</button>
     </Form>,
   );
@@ -35,7 +35,7 @@ test('validates when the field is required but empty', () => {
 test('validates long date', () => {
   render(
     <Form>
-      <FieldDate name="testDate" />
+      <FieldDateTime name="testDate" />
       <button>Submit</button>
     </Form>,
   );
@@ -53,7 +53,7 @@ test('validates long date', () => {
 test('validates short date', () => {
   render(
     <Form>
-      <FieldDate isShort name="testDate" />
+      <FieldDateTime isShort name="testDate" />
       <button>Submit</button>
     </Form>,
   );
@@ -71,7 +71,7 @@ test('sets the form values', () => {
   render(
     <Form>{({ values }) => (
       <>
-        <FieldDate name="testDate" />
+        <FieldDateTime name="testDate" showTime />
         <span data-testid="values">{JSON.stringify(values)}</span>
       </>
     )}
@@ -80,11 +80,15 @@ test('sets the form values', () => {
   type('Day', 1);
   type('Month', 12);
   type('Year', 2021);
+  type('Hour', 23);
+  type('Minute', 15);
   expect(screen.getByTestId('values').textContent).toEqual(JSON.stringify({
     testDate: {
       day: '1',
       month: '12',
       year: '2021',
+      hour: '23',
+      minute: '15',
     },
   }));
 });

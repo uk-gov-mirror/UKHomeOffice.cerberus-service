@@ -9,16 +9,24 @@ import FormProgress from '../forms/FormProgress';
 import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 import FormActions from '../forms/FormActions';
-import FieldSelect from '../forms/FieldSelect';
 import Panel from '../govuk/Panel';
 import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
 import FieldAutocomplete from '../forms/FieldAutocomplete';
 import Details from '../govuk/Details';
-import FieldDate from '../forms/FieldDate';
+import FieldDateTime from '../forms/FieldDate';
 
 const IssueTargetPage = () => {
   const history = useHistory();
+
+  const dummyOptions = [
+    { label: 'Option A', value: 'a' },
+    { label: 'Option B', value: 'b' },
+    { label: 'Option C', value: 'c' },
+    { label: 'Option D', value: 'd' },
+    { label: 'Option E', value: 'e' },
+    { label: 'Option F', value: 'f' },
+  ];
 
   const [success, setSuccess] = useState(false);
 
@@ -46,32 +54,33 @@ const IssueTargetPage = () => {
 
           <h1 className="govuk-heading-xl">Issue a target</h1>
 
-          <FormStep name="one">
+          <FormStep name="basic2">
             <h2 className="govuk-heading-m">General Target Information</h2>
 
-            <FieldDate required="Enter example date" name="exampleDate" legend="Example date" />
-
-            <FieldAddress name="testAddress" />
+            <FieldAutocomplete
+              label="Issuing hub (optional)"
+              name="issuingHub"
+              options={dummyOptions}
+            />
 
             <FieldAutocomplete
-              label="Test autocomplete"
-              required="Type something to the autocomplete field"
-              name="testAutocomplete"
-              isMulti
-              options={[
-                { label: 'Option A', value: 'a' },
-                { label: 'Option B', value: 'b' },
-                { label: 'Option C', value: 'c' },
-                { label: 'Option D', value: 'd' },
-                { label: 'Option E', value: 'e' },
-                { label: 'Option F', value: 'f' },
-              ]}
+              label="Target category"
+              name="category"
+              required="Select target category"
+              options={dummyOptions}
+            />
+
+            <FieldAutocomplete
+              label="Port"
+              name="eventPort"
+              required="Select port"
+              options={dummyOptions}
+              hint="The port that the target is scheduled to arrive at"
             />
 
             <FieldInput
-              label="Operation name"
+              label="Operation name (optional)"
               name="operation"
-              required="Type operation name"
               formGroup={{
                 suffix: (
                   <Details
@@ -85,6 +94,15 @@ const IssueTargetPage = () => {
               }}
             />
 
+            <FieldAutocomplete
+              isMulti
+              label="Threat indicators"
+              name="threatIndicators"
+              required="Select thread indicators"
+              options={dummyOptions}
+              hint="The port that the target is scheduled to arrive at"
+            />
+
             <FieldRadios
               legend="What type of RoRo movement is this?"
               name="roroFreightType"
@@ -96,20 +114,28 @@ const IssueTargetPage = () => {
               ]}
             />
 
-            <FieldInput name="test" type="text" label="Test input" />
-            <FieldSelect
-              name="testSelect"
-              options={[
-                { label: 'Option A', value: 'a' },
-                { label: 'Option B', value: 'b' },
-              ]}
+            <h2 className="govuk-heading-m">Interception details</h2>
+
+            <FieldInput
+              label="Vessel name (optional)"
+              name="vessel.name"
             />
-          </FormStep>
 
-          <FormStep name="two">
-            <h2 className="govuk-heading-m">Second step</h2>
+            <FieldInput
+              label="Shipping company (optional)"
+              name="vessel.company"
+            />
 
-            <FieldInput name="test2" type="text" label="Test input 2" />
+            <FieldDateTime
+              legend="Estimated date and time of arrival"
+              required="Enter the estimated date and time of arrival"
+              name="exampleDate"
+              showTime
+            />
+
+            <h2 className="govuk-heading-m">Consignee details</h2>
+
+            <FieldAddress label="address" name="address" />
           </FormStep>
 
           <pre>
