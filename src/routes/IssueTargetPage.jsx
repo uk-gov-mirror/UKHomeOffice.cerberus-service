@@ -12,6 +12,7 @@ import FormActions from '../forms/FormActions';
 import FieldSelect from '../forms/FieldSelect';
 import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
+import FieldAutocomplete from '../forms/FieldAutocomplete';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -39,6 +40,21 @@ const IssueTargetPage = () => {
             <h2 className="govuk-heading-m">General Target Information</h2>
 
             <FieldAddress name="testAddress" />
+
+            <FieldAutocomplete
+              label="Test autocomplete"
+              required="Type something to the autocomplete field"
+              name="testAutocomplete"
+              isMulti
+              options={[
+                { label: 'Option A', value: 'a' },
+                { label: 'Option B', value: 'b' },
+                { label: 'Option C', value: 'c' },
+                { label: 'Option D', value: 'd' },
+                { label: 'Option E', value: 'e' },
+                { label: 'Option F', value: 'f' },
+              ]}
+            />
 
             <FieldRadios
               legend="What type of RoRo movement is this?"

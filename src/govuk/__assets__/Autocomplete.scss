@@ -1,0 +1,81 @@
+$govuk-assets-path: '~govuk-frontend/govuk/assets/';
+
+@import '~govuk-frontend/govuk/settings/all';
+@import '~govuk-frontend/govuk/helpers/all';
+@import '~govuk-frontend/govuk/tools/all';
+
+.govuk-autocomplete-container {
+  @include govuk-font($size: 19);
+
+  .govuk-autocomplete__option {
+    border-radius: 0;
+    cursor: pointer;
+
+    &:not(:first-child) {
+      border-top: $govuk-border-width-form-element solid $govuk-input-border-colour;
+    }
+  }
+
+  .govuk-autocomplete__menu {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    border: $govuk-border-width-form-element solid $govuk-input-border-colour;
+    border-top: 0;
+  }
+
+  .govuk-autocomplete__menu-list {
+    padding: 0;
+  }
+
+  .govuk-autocomplete__option--is-focused, .govuk-autocomplete__option--is-selected:hover {
+    color: govuk-colour("white");
+    background-color: govuk-colour("blue");
+  }
+
+  .govuk-autocomplete__option--is-selected  {
+    background-color: govuk-colour("light-blue");
+  }
+
+  .govuk-autocomplete__control, .govuk-autocomplete__control:hover, .govuk-autocomplete__control--is-focused {
+    border-radius: 0;
+    border: $govuk-border-width-form-element solid $govuk-input-border-colour;
+  }
+
+  .govuk-autocomplete__control:focus, .govuk-autocomplete__control--is-focused {
+    outline: $govuk-focus-width solid $govuk-focus-colour !important;
+    box-shadow: inset 0 0 0 $govuk-border-width-form-element;
+  }
+
+  .govuk-autocomplete__placeholder {
+    color: govuk-colour("mid-grey");
+  }
+
+  .govuk-autocomplete__multi-value {
+    border-radius: 0;
+    color: govuk-shade(govuk-colour("dark-grey", $legacy: "grey-1"), 30);
+    background: govuk-tint(govuk-colour("dark-grey", $legacy: "grey-1"), 90);
+  }
+
+  .govuk-autocomplete__multi-value__label {
+    border-radius: 0;
+  }
+
+  .govuk-autocomplete__multi-value__remove {
+    border-radius: 0;
+    cursor: pointer;
+    &:hover {
+      color: govuk-shade(govuk-colour("red"), 30);
+      background: govuk-tint(govuk-colour("red"), 80);
+    }
+  }
+}
+
+.govuk-autocomplete-container--error .govuk-autocomplete__control {
+  &, &:hover {
+    border-color: $govuk-error-colour;
+  }
+  &.govuk-autocomplete__control--is-focused {
+    border-color: $govuk-input-border-colour;
+  }
+}
