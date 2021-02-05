@@ -14,6 +14,7 @@ import Panel from '../govuk/Panel';
 import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
 import FieldAutocomplete from '../forms/FieldAutocomplete';
+import Details from '../govuk/Details';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -62,6 +63,23 @@ const IssueTargetPage = () => {
                 { label: 'Option E', value: 'e' },
                 { label: 'Option F', value: 'f' },
               ]}
+            />
+
+            <FieldInput
+              label="Operation name"
+              name="operation"
+              required="Type operation name"
+              formGroup={{
+                suffix: (
+                  <Details
+                    summary="How to find the port from the dropdown list"
+                    className="govuk-!-margin-top-2"
+                  >
+                    To search for a port, enter the first three letters in the search bar of the dropdown list.
+                    This will filter the list based on those letters
+                  </Details>
+                ),
+              }}
             />
 
             <FieldRadios
