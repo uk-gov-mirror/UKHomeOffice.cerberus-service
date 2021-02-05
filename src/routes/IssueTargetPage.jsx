@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import Form from '../forms/Form';
@@ -10,12 +10,19 @@ import Button from '../govuk/Button';
 import SecondaryButton from '../govuk/SecondaryButton';
 import FormActions from '../forms/FormActions';
 import FieldSelect from '../forms/FieldSelect';
+import Panel from '../govuk/Panel';
 import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
 import FieldAutocomplete from '../forms/FieldAutocomplete';
 
 const IssueTargetPage = () => {
   const history = useHistory();
+
+  const [success, setSuccess] = useState(false);
+
+  if (success) {
+    return <Panel title="Form submitted">Thank you for submitting the target information sheet.</Panel>;
+  }
 
   return (
     <Form
@@ -27,6 +34,7 @@ const IssueTargetPage = () => {
           }, 2000);
         });
       }}
+      onSuccess={() => setSuccess(true)}
       onCancel={() => history.push('/')}
     >
       {({ values, isLastStep, cancel }) => (
