@@ -15,7 +15,7 @@ const FieldsetWrapper = ({ children, ...attributes }) => {
 };
 
 const FormGroup = ({
-  inputId, className, label, hint, errorMessage, describedBy, fieldset, children, ...attributes
+  inputId, className, label, hint, errorMessage, describedBy, fieldset, prefix, suffix, children, ...attributes
 }) => {
   let hintWithId;
   let errorMessageWithId;
@@ -48,12 +48,14 @@ const FormGroup = ({
   return (
     <div className={classNames(className, 'govuk-form-group', { 'govuk-form-group--error': errorMessage })} {...attributes}>
       <FieldsetWrapper {...fieldset}>
+        {prefix}
         {labelWithId}
         {hintWithId}
         {errorMessageWithId}
         {typeof children === 'function'
           ? children({ formGroupDescribeBy: describeByElements.join(' ') })
           : children}
+        {suffix}
       </FieldsetWrapper>
     </div>
   );
