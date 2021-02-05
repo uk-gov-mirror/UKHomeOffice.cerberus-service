@@ -10,37 +10,33 @@ import Input from './Input';
  */
 
 const DateInput = ({
-  id, namePrefix, className, dayInput = {}, monthInput = {}, yearInput = {}, legend,
+  id, namePrefix, className, inputs = { day: {}, month: {}, year: {} }, mergeInputs = true, legend,
   fieldset = {}, formGroup = {}, errorMessage, hint, describedBy, ...attributes
 }) => {
-  const inputsToRender = [];
-  if (dayInput) {
-    inputsToRender.push({
+  const inputsToRender = inputs && !mergeInputs ? inputs : {
+    ...inputs,
+    day: {
       label: 'Day',
       name: 'day',
       className: classNames('govuk-input--width-2', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...dayInput,
-    });
-  }
-  if (monthInput) {
-    inputsToRender.push({
+      ...inputs.day,
+    },
+    month: {
       label: 'Month',
       name: 'month',
       className: classNames('govuk-input--width-2', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...monthInput,
-    });
-  }
-  if (yearInput) {
-    inputsToRender.push({
+      ...inputs.month,
+    },
+    year: {
       label: 'Year',
       name: 'year',
       className: classNames('govuk-input--width-4', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...yearInput,
-    });
-  }
+      ...inputs.year,
+    },
+  };
 
   return (
     <FormGroup
@@ -52,7 +48,7 @@ const DateInput = ({
       {...formGroup}
     >
       <div className={classNames('govuk-date-input', className)} {...attributes}>
-        {inputsToRender.map(({
+        {Object.values(inputsToRender).map(({
           reactListKey: itemKey,
           label: itemLabel,
           id: itemId,

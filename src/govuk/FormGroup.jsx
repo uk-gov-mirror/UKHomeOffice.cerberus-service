@@ -15,7 +15,8 @@ const FieldsetWrapper = ({ children, describedBy, ...attributes }) => {
 };
 
 const FormGroup = ({
-  inputId, className, label, hint, errorMessage, describedBy, fieldset, prefix, suffix, children, ...attributes
+  inputId, className, label, hint, errorMessage, describedBy, fieldset, prefix,
+  suffix, childrenWrapper: ChildrenWrapper = React.Fragment, children, ...attributes
 }) => {
   let hintWithId;
   let errorMessageWithId;
@@ -62,9 +63,12 @@ const FormGroup = ({
         {labelWithId}
         {hintWithId}
         {errorMessageWithId}
-        {typeof children === 'function'
-          ? children({ formGroupDescribedBy: computedDescribedBy })
-          : children}
+
+        <ChildrenWrapper>
+          {typeof children === 'function'
+            ? children({ formGroupDescribedBy: computedDescribedBy })
+            : children}
+        </ChildrenWrapper>
         {suffix}
       </FieldsetWrapper>
     </div>
