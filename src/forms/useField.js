@@ -26,7 +26,7 @@ const useField = ({
       validators.unshift(requireValue(required));
     }
 
-    return validators;
+    return validators.filter((validatorFunction) => typeof validatorFunction === 'function');
   };
 
   useEffect(() => {

@@ -7,11 +7,11 @@ import Hint from './Hint';
 import ErrorMessage from './ErrorMessage';
 import Fieldset from './Fieldset';
 
-const FieldsetWrapper = ({ children, ...attributes }) => {
+const FieldsetWrapper = ({ children, describedBy, ...attributes }) => {
   if (isEmpty(attributes)) {
     return children;
   }
-  return <Fieldset {...attributes}>{children}</Fieldset>;
+  return <Fieldset describedBy={describedBy} {...attributes}>{children}</Fieldset>;
 };
 
 const FormGroup = ({
@@ -20,11 +20,11 @@ const FormGroup = ({
   let hintWithId;
   let errorMessageWithId;
   let labelWithId;
-  const describeByElements = [describedBy];
+  const describedByElements = [];
 
   if (hint) {
     const hintId = inputId ? `${inputId}-hint` : '';
-    describeByElements.push(hintId);
+    describedByElements.push(hintId);
 
     hintWithId = typeof hint === 'string' || React.isValidElement(hint)
       ? <Hint id={hintId}>{hint}</Hint>
@@ -33,7 +33,7 @@ const FormGroup = ({
 
   if (errorMessage) {
     const errorId = inputId ? `${inputId}-error` : '';
-    describeByElements.push(errorId);
+    describedByElements.push(errorId);
     errorMessageWithId = typeof errorMessage === 'string' || React.isValidElement(errorMessage)
       ? <ErrorMessage id={errorId}>{errorMessage}</ErrorMessage>
       : <ErrorMessage id={errorId} {...errorMessage} />;
@@ -45,15 +45,25 @@ const FormGroup = ({
       : <Label htmlFor={inputId} {...label} />;
   }
 
+  if (describedBy) {
+    describedByElements.push(describedBy);
+  }
+
+  if (fieldset && fieldset.describedBy) {
+    describedByElements.push(fieldset.describedBy);
+  }
+
+  const computedDescribedBy = describedByElements.join(' ');
+
   return (
     <div className={classNames(className, 'govuk-form-group', { 'govuk-form-group--error': errorMessage })} {...attributes}>
-      <FieldsetWrapper {...fieldset}>
+      <FieldsetWrapper describedBy={computedDescribedBy} {...fieldset}>
         {prefix}
         {labelWithId}
         {hintWithId}
         {errorMessageWithId}
         {typeof children === 'function'
-          ? children({ formGroupDescribeBy: describeByElements.join(' ') })
+          ? children({ formGroupDescribedBy: computedDescribedBy })
           : children}
         {suffix}
       </FieldsetWrapper>

@@ -18,13 +18,13 @@ const Radios = ({
 
   return (
     <FormGroup inputId={id} hint={hint} fieldset={{ legend, ...fieldset }} errorMessage={errorMessage} describedBy={describedBy} {...formGroup}>
-      {({ formGroupDescribeBy }) => (
+      {({ formGroupDescribedBy }) => (
         <div
           className={classNames('govuk-radios', className, {
             'govuk-radios--conditional': isConditional,
             'govuk-radios--inline': inline,
           })}
-          aria-describedby={formGroupDescribeBy}
+          aria-describedby={formGroupDescribedBy}
         >
           {items.map((item, index) => {
             const idSuffix = `-${index + 1}`;

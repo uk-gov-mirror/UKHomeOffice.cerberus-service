@@ -15,6 +15,7 @@ import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
 import FieldAutocomplete from '../forms/FieldAutocomplete';
 import Details from '../govuk/Details';
+import FieldDate from '../forms/FieldDate';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -47,6 +48,8 @@ const IssueTargetPage = () => {
 
           <FormStep name="one">
             <h2 className="govuk-heading-m">General Target Information</h2>
+
+            <FieldDate required="Enter example date" name="exampleDate" legend="Example date" />
 
             <FieldAddress name="testAddress" />
 
