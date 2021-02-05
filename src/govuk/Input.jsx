@@ -1,3 +1,9 @@
+/**
+ * React implementation of GOV.UK Design System Input
+ * Demo: https://design-system.service.gov.uk/components/text-input/
+ * Code: https://github.com/alphagov/govuk-frontend/blob/master/package/govuk/components/input/README.md
+ */
+
 import React from 'react';
 import classNames from 'classnames';
 import FormGroup from './FormGroup';

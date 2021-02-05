@@ -14,7 +14,8 @@ import FieldRadios from '../forms/FieldRadios';
 import FieldAddress from '../forms/FieldAddress';
 import FieldAutocomplete from '../forms/FieldAutocomplete';
 import Details from '../govuk/Details';
-import FieldDateTime from '../forms/FieldDate';
+import FieldDateTime from '../forms/FieldDateTime';
+import FieldTextarea from '../forms/FieldTextarea';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -56,6 +57,12 @@ const IssueTargetPage = () => {
 
           <FormStep name="basic2">
             <h2 className="govuk-heading-m">General Target Information</h2>
+
+            <FieldTextarea
+              label="Comments on reason for selection (optional)"
+              hint="Provide as much useful information as possible. This target will be sent to a frontline team for interdiction."
+              name="selectionReasoning"
+            />
 
             <FieldAutocomplete
               label="Issuing hub (optional)"
