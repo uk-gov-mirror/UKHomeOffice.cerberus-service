@@ -16,6 +16,7 @@ import FieldAutocomplete from '../forms/FieldAutocomplete';
 import Details from '../govuk/Details';
 import FieldDateTime from '../forms/FieldDateTime';
 import FieldTextarea from '../forms/FieldTextarea';
+import FieldCheckboxes from '../forms/FieldCheckboxes';
 
 const IssueTargetPage = () => {
   const history = useHistory();
@@ -57,6 +58,16 @@ const IssueTargetPage = () => {
 
           <FormStep name="basic2">
             <h2 className="govuk-heading-m">General Target Information</h2>
+
+            <FieldCheckboxes
+              legend="Details are available for (optional)"
+              name="detailsOf"
+              items={[
+                { label: 'Consignor', value: 'consignor' },
+                { label: 'Consignee', value: 'consignee' },
+                { label: 'Haulier', value: 'haulier' },
+              ]}
+            />
 
             <FieldTextarea
               label="Comments on reason for selection (optional)"
