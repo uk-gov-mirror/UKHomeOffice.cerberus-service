@@ -4,7 +4,7 @@ import FormGroup from '../govuk/FormGroup';
 import Autocomplete from '../govuk/Autocomplete';
 
 const FieldAutocomplete = ({
-  id, name, label, hint, defaultValue = '', validate, required, formGroup = {}, ...props
+  id, name, label, hint, defaultValue, validate, required, formGroup = {}, ...props
 }) => {
   const {
     value, error, setFieldValue,
