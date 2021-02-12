@@ -1,2 +1,6 @@
-$govuk-assets-path: '~govuk-frontend/govuk/assets/';
+@import "base";
 @import "~govuk-frontend/govuk/all";
+
+.govuk-width-container {
+  max-width: 1280px;
+}
