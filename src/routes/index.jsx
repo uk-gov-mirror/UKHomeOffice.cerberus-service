@@ -6,6 +6,7 @@ import { useKeycloak } from '../utils/keycloak';
 import Layout from '../components/Layout';
 import HomePage from './HomePage';
 import TaskListPage from './TaskListPage';
+import TaskDetailsPage from './TaskDetailsPage';
 import IssueTargetPage from './IssueTargetPage';
 
 const AppRouter = () => {
@@ -24,6 +25,7 @@ const AppRouter = () => {
       <Layout>
         <Route path="/" exact component={HomePage} />
         <Route path="/tasks" exact component={TaskListPage} />
+        <Route path="/tasks/:taskId" exact component={TaskDetailsPage} />
         <Route path="/issue-target" exact component={IssueTargetPage} />
       </Layout>
     </BrowserRouter>

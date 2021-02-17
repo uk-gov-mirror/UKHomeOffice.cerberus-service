@@ -7,22 +7,20 @@
 import React from 'react';
 import classNames from 'classnames';
 
-function Details({
+const Details = ({
   open, className, summary, children, ...attributes
-}) {
-  return (
-    <details className={classNames('govuk-details', className)} open={open} data-module="govuk-details" {...attributes}>
-      <summary className="govuk-details__summary">
-        <span className="govuk-details__summary-text">
-          {summary}
-        </span>
-      </summary>
-      <div className="govuk-details__text">
-        {children}
-      </div>
-    </details>
+}) => (
+  <details className={classNames('govuk-details', className)} open={open} data-module="govuk-details" {...attributes}>
+    <summary className="govuk-details__summary">
+      <span className="govuk-details__summary-text">
+        {summary}
+      </span>
+    </summary>
+    <div className="govuk-details__text">
+      {children}
+    </div>
+  </details>
 
-  );
-}
+);
 
 export default Details;
