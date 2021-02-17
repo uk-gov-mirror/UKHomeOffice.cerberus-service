@@ -109,24 +109,8 @@ const VersionsTab = ({ task }) => (
   </>
 );
 
-const ActionsTab = ({ task }) => (
-  <Form id={`task-actions-${task.id}`}>
-    <FieldRadios
-      name="action"
-      legend={{ className: 'govuk-fieldset__legend--l', children: 'Actions' }}
-      hint="Perform actions on this case depending on your role."
-      required="Chose an action"
-      items={[
-        { label: 'Information request', value: 'ir' },
-        { label: 'Screening request', value: 'sr' },
-        { label: 'Issue for interdiction', value: 'ifr' },
-        { label: 'Dismiss task', value: 'dt' },
-        { label: 'Do not load', value: 'dnl' },
-        { label: 'Assessment complete', value: 'ac' },
-      ]}
-    />
-    <Button>Submit</Button>
-  </Form>
+const ActionsTab = () => (
+  <div>--- Here will be a form ---</div>
 );
 
 const TaskDetailsPage = () => {
@@ -162,14 +146,8 @@ const TaskDetailsPage = () => {
         </div>
         <div className="govuk-grid-column-one-third">
           <h2 className="govuk-heading-m">Notes</h2>
-          <Form id={`task-notes-${task.id}`} showErrorSummary={false}>
-            <FieldTextarea
-              label="Add a new note"
-              name="notes"
-              required="Type the notes"
-            />
-            <SecondaryButton type="submit">Save</SecondaryButton>
-          </Form>
+
+          --- Here will be a form ---
 
           <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
           <h3 className="govuk-heading-m">Activity</h3>
