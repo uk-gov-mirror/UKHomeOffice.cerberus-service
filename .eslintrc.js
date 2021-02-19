@@ -11,6 +11,7 @@ module.exports = {
     'plugin:jsx-a11y/recommended',
     'plugin:jest/recommended',
     'plugin:react/recommended',
+    'plugin:cypress/recommended',
   ],
   parser: 'babel-eslint',
   globals: {
@@ -56,12 +57,13 @@ module.exports = {
   },
   overrides: [
     {
-      files: ['*.test.js'],
+      files: ['*.test.js', '*.spec.js', 'commands.js', 'index.js'],
       rules: {
         'jest/valid-expect': 0,
         'jest/valid-expect-in-promise': 0,
         'no-unused-expressions': 'off',
         'quote-props': 'off',
+        'cypress/no-unnecessary-waiting': 'off',
         'no-console': 0,
       },
     },

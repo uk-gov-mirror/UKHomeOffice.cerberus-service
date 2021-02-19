@@ -58,3 +58,13 @@ Setup your environment as described in [Native development](#native-development)
 ```sh
 npm run lint -- <directory>
 ```
+### Running UI tests (cypress tests)
+There are two ways to run cypress tests, using the cypress test runner or running cypress tests using the command line.
+(You will need Cerberus-service FE service running before triggering Cypress)
+By default tests run against local environment.
+
+#### Running Cypress Test Runner
+```sh
+npm run cypress:runner
+```
+Once TestRunner launched, click on the interested spec inside folder cypress/integration/cerberus

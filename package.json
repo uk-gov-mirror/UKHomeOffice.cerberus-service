@@ -8,7 +8,8 @@
     "build:dev": "webpack --mode=development",
     "lint": "eslint -f table --ext=js,jsx",
     "start": "webpack serve --watch --mode=development --history-api-fallback",
-    "test": "jest"
+    "test": "jest",
+    "cypress:runner": "cypress open"
   },
   "repository": {
     "type": "git",
@@ -22,6 +23,7 @@
   "homepage": "https://github.com/UKHomeOffice/cerberus-service#readme",
   "dependencies": {
     "classnames": "^2.2.6",
+    "eslint-plugin-cypress": "^2.11.2",
     "govuk-frontend": "^3.10.2",
     "keycloak-js": "^12.0.1",
     "lodash": "^4.17.20",
@@ -42,6 +44,8 @@
     "babel-loader": "^8.2.2",
     "copy-webpack-plugin": "^7.0.0",
     "css-loader": "^5.0.1",
+    "cypress": "^6.5.0",
+    "cypress-keycloak-commands": "^1.2.0",
     "eslint": "^7.18.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-plugin-babel": "^5.3.1",
