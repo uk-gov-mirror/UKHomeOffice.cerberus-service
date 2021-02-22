@@ -1,0 +1,15 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "env": {
+    "auth_base_url": "https://sso-dev.notprod.homeoffice.gov.uk/auth",
+    "auth_realm":"cop-dev",
+    "auth_client_id":"formbuilder"
+  },
+  "defaultCommandTimeout": 10000,
+  "requestTimeout": 20000,
+  "responseTimeout": 20000,
+  "chromeWebSecurity": false,
+  "testFiles": "**/cerberus/*.js",
+  "video": false,
+  "watchForFileChanges":false
+}
