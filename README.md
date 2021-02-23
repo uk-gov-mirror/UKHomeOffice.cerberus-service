@@ -60,7 +60,7 @@ npm run lint -- <directory>
 ```
 ### Running UI tests (cypress tests)
 There are two ways to run cypress tests, using the cypress test runner or running cypress tests using the command line.
-(You will need Cerberus-service FE service running before triggering Cypress)
+(You will need the cerberus-service application running before triggering the Cypress tests)
 By default tests run against local environment.
 
 #### Running Cypress Test Runner
