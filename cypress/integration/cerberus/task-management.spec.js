@@ -5,7 +5,7 @@ describe('Verify Task Management Page', () => {
     });
   });
 
-  it('Should check all the tabs on task management page', () => {
+  it('Should render all the tabs on task management page', () => {
     const taskNavigationItems = [
       'New',
       'In progress',
