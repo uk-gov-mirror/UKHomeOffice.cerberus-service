@@ -1,12 +1,14 @@
 import React from 'react';
 import Header from './Header';
 
-const Layout = ({ children }) => (
+const Layout = ({ beforeMain, children }) => (
   <>
     <Header />
 
-    <div className="govuk-width-container app-width-container">
-      <main className="govuk-main-wrapper app-main-class" id="main-content" role="main">
+    <div className="govuk-width-container">
+      {beforeMain}
+
+      <main className="govuk-main-wrapper" id="main-content" role="main">
         {children}
       </main>
     </div>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter, Link, Route } from 'react-router-dom';
 import { initAll } from 'govuk-frontend';
 
 import { useKeycloak } from '../utils/keycloak';
@@ -22,12 +22,14 @@ const AppRouter = () => {
 
   return (
     <BrowserRouter>
-      <Layout>
-        <Route path="/" exact component={HomePage} />
-        <Route path="/tasks" exact component={TaskListPage} />
-        <Route path="/tasks/:taskId" exact component={TaskDetailsPage} />
-        <Route path="/issue-target" exact component={IssueTargetPage} />
-      </Layout>
+      <Route path="/" exact><Layout><HomePage /></Layout></Route>
+      <Route path="/tasks" exact><Layout><TaskListPage /></Layout></Route>
+      <Route path="/tasks/:taskId" exact>
+        <Layout beforeMain={<Link className="govuk-back-link" to="/tasks">Back to task list</Link>}>
+          <TaskDetailsPage />
+        </Layout>
+      </Route>
+      <Route path="/issue-target" exact><Layout><IssueTargetPage /></Layout></Route>
     </BrowserRouter>
   );
 };
