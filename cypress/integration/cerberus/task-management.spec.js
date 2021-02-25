@@ -34,9 +34,9 @@ describe('Verify Task Management Page', () => {
 
     cy.navigation('New');
 
-    cy.clickOnTask('20201101-141');
+    cy.contains('2021-58914').click();
 
-    cy.url('include', '/COP-20201101-141');
+    cy.url('include', '/COP-20201101-140');
   });
 
   after(() => {
