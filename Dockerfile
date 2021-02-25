@@ -1,6 +1,5 @@
 FROM node:10-alpine as builder
 
-ARG API_BASE_URL=https://api.fake.build.com
 ARG ENVIRONMENT=fake-environment
 ARG KEYCLOAK_AUTH_URL=https://sso-fake.build.com/auth
 ARG KEYCLOAK_CLIENT_ID=fake-client-id
@@ -21,7 +20,6 @@ RUN npm run build
 FROM alpine:3.7
 
 ENV NGINX_CONFIG_FILE=/etc/nginx/nginx.conf \
-    API_BASE_URL=https://api.fake.build.com \
     KEYCLOAK_AUTH_URL=https://sso-fake.build.com/auth \
     KEYCLOAK_CLIENT_ID=fake-client-id \
     KEYCLOAK_REALM=fake-realm
