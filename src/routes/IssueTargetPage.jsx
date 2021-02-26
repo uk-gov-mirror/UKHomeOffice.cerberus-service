@@ -1,174 +1,106 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Formio, Form } from 'react-formio';
+import gds from '@digitalpatterns/formio-gds-template/lib';
 
-import Form from '../forms/Form';
-import FieldInput from '../forms/FieldInput';
-import FormStep from '../forms/FormStep';
-import FormBack from '../forms/FormBack';
-import FormProgress from '../forms/FormProgress';
-import Button from '../govuk/Button';
-import SecondaryButton from '../govuk/SecondaryButton';
-import FormActions from '../forms/FormActions';
+import config from '../config';
 import Panel from '../govuk/Panel';
-import FieldRadios from '../forms/FieldRadios';
-import FieldAddress from '../forms/FieldAddress';
-import FieldAutocomplete from '../forms/FieldAutocomplete';
-import Details from '../govuk/Details';
-import FieldDateTime from '../forms/FieldDateTime';
-import FieldTextarea from '../forms/FieldTextarea';
-import FieldCheckboxes from '../forms/FieldCheckboxes';
+import useAxiosInstance from '../utils/axiosInstance';
+import LoadingSpinner from '../forms/LoadingSpinner';
+import { useKeycloak } from '../utils/keycloak';
+import { augmentRequest, interpolate } from '../utils/formioSupport';
+
+Formio.use(gds);
 
 const IssueTargetPage = () => {
-  const history = useHistory();
-
-  const dummyOptions = [
-    { label: 'Option A', value: 'a' },
-    { label: 'Option B', value: 'b' },
-    { label: 'Option C', value: 'c' },
-    { label: 'Option D', value: 'd' },
-    { label: 'Option E', value: 'e' },
-    { label: 'Option F', value: 'f' },
-  ];
-
+  const formId = '59ae1bdd-f2a5-475a-ad5f-4b5cd4cd0a95';
   const [success, setSuccess] = useState(false);
+  const [form, setForm] = useState({
+    isLoading: true,
+    data: null,
+  });
+  const host = `${window.location.protocol}//${window.location.hostname}${
+    window.location.port ? `:${window.location.port}` : ''
+  }`;
+
+  const keycloak = useKeycloak();
+  const axiosInstance = useAxiosInstance();
+
+  Formio.baseUrl = host;
+  Formio.projectUrl = host;
+  Formio.plugins = [augmentRequest(keycloak)];
+
+  useEffect(() => {
+    const source = axios.CancelToken.source();
+
+    const loadForm = async () => {
+      if (axiosInstance) {
+        try {
+          const formResponse = await axiosInstance.get(`${config.formApiUrl}/form/${formId}`);
+          setForm({
+            isLoading: false,
+            data: formResponse.data,
+          });
+        } catch (e) {
+          setForm({
+            isLoading: false,
+            data: null,
+          });
+        }
+      }
+    };
+
+    loadForm();
+    return () => {
+      source.cancel('Cancelling request');
+    };
+  }, [formId, axiosInstance]);
 
   if (success) {
     return <Panel title="Form submitted">Thank you for submitting the target information sheet.</Panel>;
   }
 
+  if (form.isLoading) {
+    return <LoadingSpinner><br /><br /><br /></LoadingSpinner>;
+  }
+
+  interpolate(form.data, {
+    keycloakContext: {
+      accessToken: keycloak.token,
+      refreshToken: keycloak.refreshToken,
+      sessionId: keycloak.tokenParsed.session_state,
+      email: keycloak.tokenParsed.email,
+      givenName: keycloak.tokenParsed.given_name,
+      familyName: keycloak.tokenParsed.family_name,
+      subject: keycloak.subject,
+      url: keycloak.authServerUrl,
+      realm: keycloak.realm,
+      roles: keycloak.tokenParsed.realm_access.roles,
+      groups: keycloak.tokenParsed.groups,
+    },
+    environmentContext: {
+      referenceDataUrl: config.refdataApiUrl,
+    },
+  });
+
   return (
     <Form
-      id="target-sheet-form"
-      onSubmit={async () => {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({});
-          }, 2000);
-        });
+      form={form.data}
+      onSubmit={() => {
+        setSuccess(true);
       }}
-      onSuccess={() => setSuccess(true)}
-      onCancel={() => history.push('/')}
-    >
-      {({ values, isLastStep, cancel }) => (
-        <>
-          <FormBack />
-          <FormProgress />
-
-          <h1 className="govuk-heading-xl">Issue a target</h1>
-
-          <FormStep name="basic2">
-            <h2 className="govuk-heading-m">General Target Information</h2>
-
-            <FieldCheckboxes
-              legend="Details are available for (optional)"
-              name="detailsOf"
-              items={[
-                { label: 'Consignor', value: 'consignor' },
-                { label: 'Consignee', value: 'consignee' },
-                { label: 'Haulier', value: 'haulier' },
-              ]}
-            />
-
-            <FieldTextarea
-              label="Comments on reason for selection (optional)"
-              hint="Provide as much useful information as possible. This target will be sent to a frontline team for interdiction."
-              name="selectionReasoning"
-            />
-
-            <FieldAutocomplete
-              label="Issuing hub (optional)"
-              name="issuingHub"
-              options={dummyOptions}
-            />
-
-            <FieldAutocomplete
-              label="Target category"
-              name="category"
-              required="Select target category"
-              options={dummyOptions}
-            />
-
-            <FieldAutocomplete
-              label="Port"
-              name="eventPort"
-              required="Select port"
-              options={dummyOptions}
-              hint="The port that the target is scheduled to arrive at"
-            />
-
-            <FieldInput
-              label="Operation name (optional)"
-              name="operation"
-              formGroup={{
-                suffix: (
-                  <Details
-                    summary="How to find the port from the dropdown list"
-                    className="govuk-!-margin-top-2"
-                  >
-                    To search for a port, enter the first three letters in the search bar of the dropdown list.
-                    This will filter the list based on those letters
-                  </Details>
-                ),
-              }}
-            />
-
-            <FieldAutocomplete
-              isMulti
-              label="Threat indicators"
-              name="threatIndicators"
-              required="Select thread indicators"
-              options={dummyOptions}
-              hint="The port that the target is scheduled to arrive at"
-            />
-
-            <FieldRadios
-              legend="What type of RoRo movement is this?"
-              name="roroFreightType"
-              required="Chose RoRo movement type"
-              inline
-              items={[
-                { label: 'Accompanied', value: 'accompanied' },
-                { label: 'Unaccompanied', value: 'unaccompanied' },
-              ]}
-            />
-
-            <h2 className="govuk-heading-m">Interception details</h2>
-
-            <FieldInput
-              label="Vessel name (optional)"
-              name="vessel.name"
-            />
-
-            <FieldInput
-              label="Shipping company (optional)"
-              name="vessel.company"
-            />
-
-            <FieldDateTime
-              legend="Estimated date and time of arrival"
-              required="Enter the estimated date and time of arrival"
-              name="exampleDate"
-              showTime
-            />
-
-            <h2 className="govuk-heading-m">Consignee details</h2>
-
-            <FieldAddress label="address" name="address" />
-          </FormStep>
-
-          <pre>
-            <code>
-              {JSON.stringify(values, 0, 2)}
-            </code>
-          </pre>
-
-          <FormActions>
-            <Button>{isLastStep() ? 'Submit' : 'Save and continue'}</Button>
-            <SecondaryButton onClick={(e) => { e.preventDefault(); cancel(); }}>Cancel</SecondaryButton>
-          </FormActions>
-        </>
-      )}
-    </Form>
+      options={{
+        breadcrumbSettings: {
+          clickable: false,
+        },
+        noAlerts: true,
+        hooks: {
+          buttonSettings: {
+            showCancel: true,
+          },
+        },
+      }}
+    />
   );
 };
 

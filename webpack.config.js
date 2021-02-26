@@ -12,6 +12,9 @@ module.exports = {
   },
   resolve: {
     extensions: ['.js', '.jsx'],
+    alias: {
+      '/assets': path.resolve(__dirname, 'node_modules/govuk-frontend/govuk/assets'),
+    },
   },
   module: {
     rules: [
@@ -50,8 +53,15 @@ module.exports = {
         KEYCLOAK_AUTH_URL: JSON.stringify(process.env.KEYCLOAK_AUTH_URL),
         KEYCLOAK_CLIENT_ID: JSON.stringify(process.env.KEYCLOAK_CLIENT_ID),
         KEYCLOAK_REALM: JSON.stringify(process.env.KEYCLOAK_REALM),
+        FORM_API_URL: JSON.stringify(process.env.FORM_API_URL),
+        REFDATA_API_URL: JSON.stringify(process.env.REFDATA_API_URL),
       },
     }),
     new HtmlWebpackPlugin({ template: './src/index.html' }),
   ],
+  devServer: {
+    historyApiFallback: true,
+    hot: true,
+    port: 8080,
+  },
 };

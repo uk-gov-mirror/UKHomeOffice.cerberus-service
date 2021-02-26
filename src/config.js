@@ -10,6 +10,8 @@ const config = {
       checkLoginIframe: false,
     },
   },
+  refdataApiUrl: process.env.REFDATA_API_URL,
+  formApiUrl: process.env.FORM_API_URL,
 };
 
 export default config;

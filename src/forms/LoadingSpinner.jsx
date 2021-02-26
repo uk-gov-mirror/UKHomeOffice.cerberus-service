@@ -2,7 +2,7 @@ import React from 'react';
 
 import './__assets__/LoadingSpinner.scss';
 
-const LoadingSpinner = ({ loading, children }) => {
+const LoadingSpinner = ({ loading = true, children }) => {
   if (!loading) {
     return children;
   }
