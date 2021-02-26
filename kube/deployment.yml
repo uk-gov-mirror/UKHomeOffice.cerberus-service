@@ -88,8 +88,6 @@ spec:
           successThreshold: 1
           timeoutSeconds: 15
         env:
-          - name: API_BASE_URL
-            value: "{{.API_BASE_URL}}"
           - name: KEYCLOAK_AUTH_URL
             value: "{{.KEYCLOAK_AUTH_URL}}"
           - name: KEYCLOAK_CLIENT_ID

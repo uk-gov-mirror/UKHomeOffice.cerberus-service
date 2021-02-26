@@ -128,8 +128,6 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
-    API_BASE_URL:
-      from_secret: DEV_CERBERUS_UI_API_BASE_URL
     KEYCLOAK_AUTH_URL:
       from_secret: KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
@@ -173,8 +171,6 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
-    API_BASE_URL:
-      from_secret: STAGING_CERBERUS_UI_API_BASE_URL
     KEYCLOAK_AUTH_URL:
       from_secret: KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
@@ -219,8 +215,6 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
-    API_BASE_URL:
-      from_secret: PRODUCTION_CERBERUS_UI_API_BASE_URL
     KEYCLOAK_AUTH_URL:
       from_secret: KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
