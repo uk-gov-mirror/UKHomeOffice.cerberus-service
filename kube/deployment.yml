@@ -80,7 +80,7 @@ spec:
           - name: KEYCLOAK_REALM
             value: "{{.KEYCLOAK_REALM}}"
           - name: ENVIRONMENT
-            value: "{{.DEPLOY_ENV}}
+            value: "{{.DEPLOY_ENV}}"
       volumes:
       - name: certs
         secret:
