@@ -24,8 +24,6 @@ spec:
         service: {{.CERBERUS_UI_NAME}}
     spec:
       restartPolicy: Always
-      securityContext:
-        fsGroup: 1000
       containers:
       - name: {{.CERBERUS_UI_NAME}}-proxy
         image: "{{.NGINX_IMAGE}}:{{.NGINX_TAG}}"
@@ -58,7 +56,7 @@ spec:
         image: {{.CERBERUS_UI_IMAGE}}:{{.CERBERUS_UI_TAG}}
         imagePullPolicy: Always
         securityContext:
-          runAsUser: 1000
+          runAsUser: 100
           runAsNonRoot: true
         resources:
           requests:
