@@ -60,8 +60,6 @@ spec:
         securityContext:
           runAsUser: 1000
           runAsNonRoot: true
-        command: ["/bin/sh"]
-        args: ["-c", "/run.sh"]
         resources:
           requests:
             memory: 200Mi
