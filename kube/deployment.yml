@@ -64,29 +64,14 @@ spec:
         args: ["-c", "/run.sh"]
         resources:
           requests:
-            memory: "1024Mi"
-            cpu: "1000m"
+            memory: 200Mi
+            cpu: 100m
           limits:
-            memory: "1024Mi"
-            cpu: "1000m"
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /healthz
-            port: {{.API_FORM_PORT}}
-            scheme: HTTP
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 15
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /readiness
-            port: {{.API_FORM_PORT}}
-            scheme: HTTP
-          periodSeconds: 30
-          successThreshold: 1
-          timeoutSeconds: 15
+            memory: 500Mi
+            cpu: 200m
+        ports:
+          - name: frontend
+            containerPort: {{.CERBERUS_UI_PORT}}
         env:
           - name: KEYCLOAK_AUTH_URL
             value: "{{.KEYCLOAK_AUTH_URL}}"

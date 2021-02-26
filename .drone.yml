@@ -125,6 +125,7 @@ steps:
       from_secret: DEV_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
     CERBERUS_UI_NAME: cerberus-ui-service
+    CERBERUS_UI_PORT: 8080
     CERBERUS_UI_URL:
       from_secret: DEV_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
@@ -165,6 +166,7 @@ steps:
       from_secret: STAGING_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
     CERBERUS_UI_NAME: cerberus-ui-service
+    CERBERUS_UI_PORT: 8080
     CERBERUS_UI_URL:
       from_secret: STAGING_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
@@ -206,6 +208,7 @@ steps:
       from_secret: PRODUCTION_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
     CERBERUS_UI_NAME: cerberus-ui-service
+    CERBERUS_UI_PORT: 8080
     CERBERUS_UI_URL:
       from_secret: PRODUCTION_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
