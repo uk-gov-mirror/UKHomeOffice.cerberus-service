@@ -118,18 +118,15 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
+    DEPLOY_ENV: dev
     KEYCLOAK_AUTH_URL:
-      from_secret: KEYCLOAK_URL
+      from_secret: DEV_KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
-      from_secret: DEV_CERBERUS_UI_KEYCLOAK_CLIENT_ID
+      from_secret: DEV_CERBERUS_UI_SERVICE_KEYCLOAK_CLIENT_ID
     KEYCLOAK_REALM:
-      from_secret: KEYCLOAK_REALM
-    NGINX_CONFIG_FILE:
-      from_secret: DEV_CERBERUS_UI_NGINX_CONFIG
-    CERBERUS_UI_IMAGE:
-      from_secret: DEV_CERBERUS_UI_SERVICE_IMAGE
-    CERBERUS_UI_NAME:
-      from_secret: DEV_CERBERUS_UI_SERVICE_NAME
+      from_secret: DEV_KEYCLOAK_REALM
+    CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
+    CERBERUS_UI_NAME: cerberus_ui_service
     CERBERUS_UI_URL:
       from_secret: DEV_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
@@ -161,20 +158,17 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
+    DEPLOY_ENV: staging
     KEYCLOAK_AUTH_URL:
-      from_secret: KEYCLOAK_URL
+      from_secret: STAGING_KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
-      from_secret: STAGING_CERBERUS_UI_KEYCLOAK_CLIENT_ID
+      from_secret: STAGING_CERBERUS_UI_SERVICE_KEYCLOAK_CLIENT_ID
     KEYCLOAK_REALM:
-      from_secret: KEYCLOAK_REALM
-    NGINX_CONFIG_FILE:
-      from_secret: STAGING_CERBERUS_UI_NGINX_CONFIG
-    CERBERUS_UI_IMAGE:
-      from_secret: CERBERUS_UI_IMAGE
-    CERBERUS_UI_NAME:
-      from_secret: CERBERUS_UI_NAME
+      from_secret: STAGING_KEYCLOAK_REALM
+    CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
+    CERBERUS_UI_NAME: cerberus_ui_service
     CERBERUS_UI_URL:
-      from_secret: STAGING_CERBERUS_UI_URL
+      from_secret: STAGING_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
       from_secret: STAGING_KUBE_NAMESPACE_COP_CERBERUS
     KUBE_SERVER:
@@ -205,20 +199,17 @@ steps:
   - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
   - kd --insecure-skip-tls-verify -f kube/ingress.yml
   environment:
+    DEPLOY_ENV: production
     KEYCLOAK_AUTH_URL:
-      from_secret: KEYCLOAK_URL
+      from_secret: PRODUCTION_KEYCLOAK_URL
     KEYCLOAK_CLIENT_ID:
-      from_secret: PRODUCTION_CERBERUS_UI_KEYCLOAK_CLIENT_ID
+      from_secret: PRODUCTION_CERBERUS_UI_SERVICE_KEYCLOAK_CLIENT_ID
     KEYCLOAK_REALM:
-      from_secret: KEYCLOAK_REALM
-    NGINX_CONFIG_FILE:
-      from_secret: PRODUCTION_CERBERUS_UI_NGINX_CONFIG
-    CERBERUS_UI_IMAGE:
-      from_secret: CERBERUS_UI_IMAGE
-    CERBERUS_UI_NAME:
-      from_secret: CERBERUS_UI_NAME
+      from_secret: PRODUCTION_KEYCLOAK_REALM
+    CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
+    CERBERUS_UI_NAME: cerberus_ui_service
     CERBERUS_UI_URL:
-      from_secret: PRODUCTION_CERBERUS_UI_URL
+      from_secret: PRODUCTION_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
       from_secret: PRODUCTION_KUBE_NAMESPACE_COP_CERBERUS
     KUBE_SERVER:

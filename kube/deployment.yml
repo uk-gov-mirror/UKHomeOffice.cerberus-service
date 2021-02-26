@@ -94,8 +94,8 @@ spec:
             value: "{{.KEYCLOAK_CLIENT_ID}}"
           - name: KEYCLOAK_REALM
             value: "{{.KEYCLOAK_REALM}}"
-          - name: NGINX_CONFIG_FILE
-            value: "{{.NGINX_CONFIG_FILE}}"
+          - name: ENVIRONMENT
+            value: "{{.DEPLOY_ENV}}
       volumes:
       - name: certs
         secret:
