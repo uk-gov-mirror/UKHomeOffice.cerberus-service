@@ -38,7 +38,11 @@ docker build -t cerberus-service .
 ```
 **3. Run the resulting Docker container**
 ```sh
-docker run --name cerberus-service -p 8080:8080 cerberus-service
+docker run --name cerberus-service -p 8080:8080 \
+  --env  KEYCLOAK_AUTH_URL=https://your.sso.com/auth \
+  --env KEYCLOAK_CLIENT_ID=your-client-id \
+  --env KEYCLOAK_REALM=realm \
+  cerberus-service
 ```
 
 ## Tests in native development
