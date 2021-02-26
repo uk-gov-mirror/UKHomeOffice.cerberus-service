@@ -5,7 +5,6 @@ metadata:
   name: {{.CERBERUS_UI_NAME}}
   labels:
     cert-manager.io/solver: http01
-    app.kubernetes.io/name: {{.CERBERUS_UI_NAME}}
   annotations:
     cert-manager.io/enabled: "true"
     kubernetes.io/ingress.class: "nginx-external"
@@ -13,7 +12,6 @@ metadata:
     ingress.kubernetes.io/force-ssl-redirect: "true"
     ingress.kubernetes.io/proxy-read-timeout: "3600"
     ingress.kubernetes.io/proxy-send-timeout: "3600"
-    kubernetes.io/ingress.class: nginx-external
 spec:
   rules:
   - host: {{.CERBERUS_UI_URL}}
@@ -21,7 +19,7 @@ spec:
       paths:
       - backend:
           serviceName: {{.CERBERUS_UI_NAME}}
-          servicePort: 443
+          servicePort: 10443
   tls:
   - hosts:
     - {{.CERBERUS_UI_URL}}
