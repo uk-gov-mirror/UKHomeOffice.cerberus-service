@@ -139,11 +139,11 @@ steps:
     NGINX_CONFIG_FILE:
       from_secret: DEV_CERBERUS_UI_NGINX_CONFIG
     CERBERUS_UI_IMAGE:
-      from_secret: CERBERUS_UI_IMAGE
+      from_secret: DEV_CERBERUS_UI_SERVICE_IMAGE
     CERBERUS_UI_NAME:
-      from_secret: CERBERUS_UI_NAME
+      from_secret: DEV_CERBERUS_UI_SERVICE_NAME
     CERBERUS_UI_URL:
-      from_secret: DEV_CERBERUS_UI_URL
+      from_secret: DEV_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
       from_secret: DEV_KUBE_NAMESPACE_COP_CERBERUS
     KUBE_SERVER:
@@ -280,6 +280,6 @@ services:
   pull: always
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
   commands:
-  - /run.sh server      
+  - /run.sh server
 
 ...
