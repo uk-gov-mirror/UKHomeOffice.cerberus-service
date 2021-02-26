@@ -65,16 +65,6 @@ steps:
     target:
     - secrets
 
-- name: test
-  pull: if-not-exists
-  image: quay.io/ukhomeofficedigital/cop-node:11
-  commands:
-  - npm ci
-  - npm run cover
-  when:
-    event:
-    - push
-
 - name: build
   pull: always
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
