@@ -85,8 +85,6 @@ steps:
     TOLERATE: low
     WHITELIST_FILE: whitelist
   when:
-    branch:
-    - main
     event:
     - push
 
@@ -126,7 +124,7 @@ steps:
     KEYCLOAK_REALM:
       from_secret: DEV_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
-    CERBERUS_UI_NAME: cerberus_ui_service
+    CERBERUS_UI_NAME: cerberus-ui-service
     CERBERUS_UI_URL:
       from_secret: DEV_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
@@ -166,7 +164,7 @@ steps:
     KEYCLOAK_REALM:
       from_secret: STAGING_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
-    CERBERUS_UI_NAME: cerberus_ui_service
+    CERBERUS_UI_NAME: cerberus-ui-service
     CERBERUS_UI_URL:
       from_secret: STAGING_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
@@ -207,7 +205,7 @@ steps:
     KEYCLOAK_REALM:
       from_secret: PRODUCTION_KEYCLOAK_REALM
     CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
-    CERBERUS_UI_NAME: cerberus_ui_service
+    CERBERUS_UI_NAME: cerberus-ui-service
     CERBERUS_UI_URL:
       from_secret: PRODUCTION_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
