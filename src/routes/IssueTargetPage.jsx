@@ -89,17 +89,6 @@ const IssueTargetPage = () => {
       onSubmit={() => {
         setSuccess(true);
       }}
-      options={{
-        breadcrumbSettings: {
-          clickable: false,
-        },
-        noAlerts: true,
-        hooks: {
-          buttonSettings: {
-            showCancel: true,
-          },
-        },
-      }}
     />
   );
 };

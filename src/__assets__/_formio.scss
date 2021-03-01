@@ -1,0 +1,35 @@
+@import "~govuk-frontend/govuk/components/error-summary";
+
+.alert.alert-danger {
+  @extend .govuk-error-summary;
+
+  & > p:first-child {
+	@extend .govuk-error-summary__title;
+  }
+
+  ul {
+	padding: 0;
+  }
+
+  li {
+	@include govuk-font($size: 19);
+	@include govuk-typography-weight-bold;
+	@include govuk-link-common;
+	color: $govuk-error-colour;
+	list-style: none;
+	text-decoration: underline;
+  }
+}
+
+.choices *:not(.fa) {
+  @include govuk-font($size: 19);
+}
+
+.choices .fa-refresh {
+  animation: spin 2s infinite linear;
+}
+
+@keyframes spin {
+  0%  {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}

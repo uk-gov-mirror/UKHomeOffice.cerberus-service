@@ -1,6 +1,7 @@
 @import "base";
-@import '~formiojs/dist/formio.form.css';
+@import '~formiojs/dist/formio.full.css';
 @import "~govuk-frontend/govuk/all";
+@import "formio";
 
 .govuk-width-container {
   max-width: 1280px;
