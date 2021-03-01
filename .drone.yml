@@ -142,9 +142,7 @@ steps:
     branch:
     - main
     event:
-    - promote
-    target:
-    - dev
+    - push
 
 - name: deploy_to_staging
   pull: if-not-exists
