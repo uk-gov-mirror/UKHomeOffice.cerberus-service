@@ -70,7 +70,7 @@ spec:
             containerPort: {{.CERBERUS_UI_PORT}}
         env:
           - name: KEYCLOAK_AUTH_URL
-            value: "{{.KEYCLOAK_AUTH_URL}}"
+            value: "https://{{.KEYCLOAK_AUTH_URL}}"
           - name: KEYCLOAK_CLIENT_ID
             value: "{{.KEYCLOAK_CLIENT_ID}}"
           - name: KEYCLOAK_REALM
