@@ -107,7 +107,7 @@ steps:
 
 - name: run_test_dev
   pull: always
-  image: quay.io/ukhomeofficedigital/cop-cypress:5.2.0-node13
+  image: quay.io/ukhomeofficedigital/cop-cypress:6.3.0-node13
   commands:
     - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
     - npm ci
