@@ -111,7 +111,7 @@ steps:
   commands:
     - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
     - npm ci
-    - npm run cypress:test:dev
+    - cypress run --env configFile=dev
   when:
     branch:
      exclude:
