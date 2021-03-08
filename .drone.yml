@@ -113,8 +113,11 @@ steps:
         - npm ci
         - npm run cypress:test:dev
       when:
-#        event:
-#          - push
+       branch:
+        exclude:
+        - master
+      event:
+       - push
 
 - name: deploy_to_dev
   pull: if-not-exists
