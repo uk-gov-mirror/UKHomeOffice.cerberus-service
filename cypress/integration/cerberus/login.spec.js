@@ -6,10 +6,9 @@ describe('Sign-in to cerberus UI', () => {
   });
 
   it('Should Sign-in Successfully', () => {
-    const navigationItems = [
-      'Tasks',
-      'Issue a target',
-      'Sign out',
+    const urls = [
+      '/tasks',
+      '/issue-target'
     ];
 
     cy.url().should('include', '/tasks');
@@ -17,12 +16,9 @@ describe('Sign-in to cerberus UI', () => {
     cy.get('.govuk-heading-xl').should('contain.text', 'Task management');
 
     cy.get('#navigation li a').each((navigationItem, index) => {
-      cy.wrap(navigationItem).should('contain.text', navigationItems[index]).and('be.visible');
+      cy.wrap(navigationItem).click();
+      cy.url().should('include', urls[index]);
     });
   });
 
-  after(() => {
-    cy.contains('Sign out').click();
-    cy.get('#kc-page-title').should('contain.text', 'Log In');
-  });
 });

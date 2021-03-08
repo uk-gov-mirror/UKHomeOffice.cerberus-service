@@ -1,0 +1,7 @@
+{
+  "baseUrl": "http://localhost:8080",
+  "env": {
+    "envname": "local",
+    "host": "http://localhost:8080"
+  }
+}
