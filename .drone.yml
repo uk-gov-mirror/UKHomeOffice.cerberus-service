@@ -75,6 +75,20 @@ steps:
     event:
     - push
 
+- name: run_test_dev
+  pull: always
+  image: quay.io/ukhomeofficedigital/cop-cypress:6.3.0-node13
+  commands:
+    - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
+    - npm ci
+    - npm run cypress:test:local
+  when:
+    branch:
+      exclude:
+        - master
+    event:
+      - push
+
 - name: vulnerability-scan
   pull: always
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
@@ -104,20 +118,6 @@ steps:
     - main
     event:
     - push
-
-- name: run_test_dev
-  pull: always
-  image: quay.io/ukhomeofficedigital/cop-cypress:6.3.0-node13
-  commands:
-    - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
-    - npm ci
-    - cypress run --env configFile=dev
-  when:
-    branch:
-     exclude:
-      - master
-    event:
-      - push
 
 - name: deploy_to_dev
   pull: if-not-exists
