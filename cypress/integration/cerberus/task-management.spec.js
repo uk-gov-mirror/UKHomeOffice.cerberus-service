@@ -39,8 +39,4 @@ describe('Verify Task Management Page', () => {
     cy.url('include', '/COP-20201101-140');
   });
 
-  afterEach(() => {
-    cy.contains('Sign out').click();
-    cy.get('#kc-page-title').should('contain.text', 'Log In');
-  });
 });
