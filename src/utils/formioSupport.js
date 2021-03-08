@@ -70,21 +70,19 @@ export const augmentRequest = (keycloak) => ({
     let { token } = keycloak;
     const isExpired = jwtDecode(token).exp < new Date().getTime() / 1000;
     if (isExpired) {
-      try {
-        const response = await axios({
-          method: 'POST',
-          url: `${keycloak.authServerUrl}/realms/${keycloak.realm}/protocol/openid-connect/token`,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          data: qs.stringify({
-            grant_type: 'refresh_token',
-            client_id: keycloak.clientId,
-            refresh_token: keycloak.refreshToken,
-          }),
-        });
-        token = response.data.access_token;
-      } catch (e) {}
+      const response = await axios({
+        method: 'POST',
+        url: `${keycloak.authServerUrl}/realms/${keycloak.realm}/protocol/openid-connect/token`,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        data: qs.stringify({
+          grant_type: 'refresh_token',
+          client_id: keycloak.clientId,
+          refresh_token: keycloak.refreshToken,
+        }),
+      });
+      token = response.data.access_token;
     }
 
     requestArgs.opts.header.set('Authorization', `Bearer ${token}`);

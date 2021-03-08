@@ -31,10 +31,15 @@ const FieldDateTime = ({
     defaultValue,
   });
 
-  const getInputProps = (datePartName, className = 'govuk-input--width-2') => ({
+  const capitalizeFirstLetter = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+  const getInputProps = (datePartName, maxLength) => ({
+    label: capitalizeFirstLetter(datePartName),
+    name: datePartName,
     type: 'text',
+    maxLength,
     defaultValue: value[datePartName],
-    className: classNames(className, { 'govuk-input--error': error }),
+    className: classNames(`govuk-input--width-${maxLength}`, { 'govuk-input--error': error }),
     onChange: (e) => {
       setFieldValue(name, {
         ...value,
@@ -71,12 +76,11 @@ const FieldDateTime = ({
       name={name}
       errorMessage={error}
       inputs={{
-        day: isShort ? null : { placeholder: 'DD', maxLength: 2, ...getInputProps('day') },
-        month: { placeholder: 'MM', maxLength: 2, ...getInputProps('month') },
-        year: { placeholder: 'YYYY', maxLength: 4, ...getInputProps('year', 'govuk-input--width-4') },
+        day: isShort ? null : { placeholder: 'DD', maxLength: 2, ...getInputProps('day', 2) },
+        month: { placeholder: 'MM', maxLength: 2, ...getInputProps('month', 2) },
+        year: { placeholder: 'YYYY', maxLength: 4, ...getInputProps('year', 4) },
         ...timeInputs,
       }}
-      mergeInputs
       {...attributes}
     />
   );

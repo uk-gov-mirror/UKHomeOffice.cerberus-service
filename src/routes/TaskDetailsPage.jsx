@@ -7,11 +7,7 @@ import Tabs from '../govuk/Tabs';
 import Accordion from '../govuk/Accordion';
 
 import './__assets__/TaskDetailsPage.scss';
-import Form from '../forms/Form';
-import FieldRadios from '../forms/FieldRadios';
 import Button from '../govuk/Button';
-import FieldTextarea from '../forms/FieldTextarea';
-import SecondaryButton from '../govuk/SecondaryButton';
 
 const VersionsTab = ({ task }) => (
   <>

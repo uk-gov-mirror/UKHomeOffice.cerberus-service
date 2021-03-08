@@ -106,6 +106,13 @@ const tasks = [
     ],
   },
   { id: 'COP-20201101-141', title: 'Relisted task 2021-57712', versions: [] },
+  { id: 'COP-20201101-142', title: 'Relisted task 2021-57713', versions: [] },
+  { id: 'COP-20201101-143', title: 'Relisted task 2021-57714', versions: [] },
+  { id: 'COP-20201101-144', title: 'Relisted task 2021-57715', versions: [] },
+  { id: 'COP-20201101-145', title: 'Relisted task 2021-57716', versions: [] },
+  { id: 'COP-20201101-146', title: 'Relisted task 2021-57717', versions: [] },
+  { id: 'COP-20201101-147', title: 'Relisted task 2021-57718', versions: [] },
+  { id: 'COP-20201101-148', title: 'Relisted task 2021-57719', versions: [] },
 ];
 
 export default tasks;

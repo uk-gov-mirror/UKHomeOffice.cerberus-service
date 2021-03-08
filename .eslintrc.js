@@ -56,15 +56,23 @@ module.exports = {
     'react/jsx-one-expression-per-line': 'off',
   },
   overrides: [
+    // Unit tests
     {
-      files: ['*.test.js', '*.spec.js', 'commands.js', 'index.js'],
+      files: ['*.test.js'],
       rules: {
-        'jest/valid-expect': 0,
-        'jest/valid-expect-in-promise': 0,
+        'jest/valid-expect': 'off',
+        'jest/valid-expect-in-promise': 'off',
         'no-unused-expressions': 'off',
         'quote-props': 'off',
+        'no-console': 'off',
+      },
+    },
+    // Cypress tests
+    {
+      files: ['*.spec.js', 'commands.js', 'index.js'],
+      rules: {
+        'jest/expect-expect': 'off',
         'cypress/no-unnecessary-waiting': 'off',
-        'no-console': 0,
       },
     },
   ],

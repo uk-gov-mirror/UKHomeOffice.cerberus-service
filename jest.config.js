@@ -6,6 +6,7 @@
 module.exports = {
   clearMocks: true,
   setupFilesAfterEnv: ['./jest.setup.jsx'],
+  testMatch: ['**/?(*.)+(test).[jt]s?(x)'],
   moduleNameMapper: {
     '\\.(css|less|sass|scss)$': '<rootDir>/src/__mocks__/assetMock.js',
     '\\.(gif|png|jpg|ttf|eot|svg)$': '<rootDir>/src/__mocks__/assetMock.js',
