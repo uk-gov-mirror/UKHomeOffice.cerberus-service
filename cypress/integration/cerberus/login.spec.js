@@ -6,15 +6,15 @@ describe('Sign-in to cerberus UI', () => {
   });
 
   it('Should Sign-in Successfully', () => {
-    const navigationItems = [
-      'Tasks',
-      'Issue a target',
-      'Sign out',
+    const urls = [
+      '/tasks',
+      '/issue-target'
     ];
     cy.get('#main-content p').should('contain.text', 'Cypress User!');
 
     cy.get('#navigation li a').each((navigationItem, index) => {
-      cy.wrap(navigationItem).should('contain.text', navigationItems[index]).and('be.visible');
+      cy.wrap(navigationItem).click();
+      cy.url().should('include', urls[index]);
     });
   });
 

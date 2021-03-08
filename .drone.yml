@@ -105,6 +105,17 @@ steps:
     event:
     - push
 
+    - name: run_test_dev
+      pull: always
+      image: quay.io/ukhomeofficedigital/cop-cypress:5.2.0-node13
+      commands:
+        - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
+        - npm ci
+        - npm run cypress:test:dev
+      when:
+#        event:
+#          - push
+
 - name: deploy_to_dev
   pull: if-not-exists
   image: quay.io/ukhomeofficedigital/kd
