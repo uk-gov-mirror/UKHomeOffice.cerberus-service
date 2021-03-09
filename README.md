@@ -11,7 +11,7 @@ Cerberus frontend service for cerberus-api
 * [Development with docker](#development-with-docker)
 *  [Tests in native development](#tests-in-native-development)
 * [Linter in native development](#linter-in-native-development)
-* [UI tests in native development](#ui-tests-in-native-development)
+* [E2E tests in native development](#e2e-tests-in-native-development)
 
 ## Getting started
 
@@ -75,39 +75,47 @@ Setup your environment as described in [Native development](#native-development)
 npm run lint -- <directory>
 ```
 
-## UI tests in native development
-Setup your environment as described in Native development
+## E2E tests in native development
+
+Setup your environment as described in [Native development](#native-development)
 
 There are two ways to run cypress tests, using the cypress test runner or running cypress tests using the command line.
 
 By default tests run against local environment.
 
-NOTE: You will need, the cerberus-service application, to be running before triggering Cypress.
+**NOTE:** You will need, the [cerberus-service](https://github.com/UKHomeOffice/cerberus-service) application, to be running before triggering Cypress.
 
-#### Running Cypress Test Runner
+#### Running cypress test runner
+
+Running all tests
 ```sh
 npm run cypress:runner
 ```
+
+Running all tests using environment settings from a configuration file
+```sh
+npm run cypress:runner -- --env configFile=dev
+```
 Once TestRunner launched, click on the interested spec inside folder cypress/integration/cerberus
 
-#### Running Cypress tests using the command line
+#### Running cypress tests using the command line
 
-## Running all tests on local Environment, (It executes tests headless mode on Electron Browser)
+Running all tests on local Environment, (It executes tests headless mode on Electron Browser)
 ```sh
 npm run cypress:test:local
 ```
 
-## Running all tests on Development Environment, (It executes tests headless mode on Electron Browser)
+Running all tests on Development Environment, (It executes tests headless mode on Electron Browser)
 ```sh
 npm run cypress:test:dev
 ```
 
-## Running a specific test
+Running a specific test
 ```sh
-npm run cypress:test:local -- --spec cypress/integration/cerberus/login.spec.js
+npm run cypress:test:local -- --spec cypress/integration/cerberus/tasks.spec.js
 ```
 
-## Running specific test with chrome browser
+Running specific test with chrome browser
 ```sh
-npm run cypress:test:local -- --browser chrome --spec cypress/integration/sGMR/user-register.spec.js
+npm run cypress:test:local -- --browser chrome --spec cypress/integration/cerberus/task-management.spec.js
 ```
