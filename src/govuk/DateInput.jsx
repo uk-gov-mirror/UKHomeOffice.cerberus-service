@@ -10,31 +10,27 @@ import Input from './Input';
  */
 
 const DateInput = ({
-  id, namePrefix, className, inputs = { day: {}, month: {}, year: {} }, mergeInputs = true, legend,
+  id, namePrefix, className, inputs, legend,
   fieldset = {}, formGroup = {}, errorMessage, hint, describedBy, ...attributes
 }) => {
-  const inputsToRender = inputs && !mergeInputs ? inputs : {
-    ...inputs,
+  const inputsToRender = inputs || {
     day: {
       label: 'Day',
       name: 'day',
       className: classNames('govuk-input--width-2', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...inputs.day,
     },
     month: {
       label: 'Month',
       name: 'month',
       className: classNames('govuk-input--width-2', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...inputs.month,
     },
     year: {
       label: 'Year',
       name: 'year',
       className: classNames('govuk-input--width-4', { 'govuk-input--error': errorMessage }),
       type: 'text',
-      ...inputs.year,
     },
   };
 
@@ -48,7 +44,7 @@ const DateInput = ({
       {...formGroup}
     >
       <div className={classNames('govuk-date-input', className)} {...attributes}>
-        {Object.values(inputsToRender).map(({
+        {Object.values(inputsToRender).filter(Boolean).map(({
           reactListKey: itemKey,
           label: itemLabel,
           id: itemId,

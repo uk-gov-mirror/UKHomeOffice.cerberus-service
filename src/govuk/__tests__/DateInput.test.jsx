@@ -12,30 +12,9 @@ test('renders all date inputs', () => {
   expect(screen.getByLabelText('Year')).toBeInTheDocument();
 });
 
-test('renders custom inputs when merging them', () => {
+test('renders custom inputs', () => {
   render(
     <DateInput
-      mergeInputs
-      inputs={{
-        hour: {
-          label: 'Hour',
-          name: 'hour',
-          placeholder: 'HH',
-        },
-      }}
-      id="testId"
-    />,
-  );
-  expect(screen.getByLabelText('Hour')).toBeInTheDocument();
-  expect(screen.getByLabelText('Day')).toBeInTheDocument();
-  expect(screen.getByLabelText('Month')).toBeInTheDocument();
-  expect(screen.getByLabelText('Year')).toBeInTheDocument();
-});
-
-test('renders custom inputs without merging them', () => {
-  render(
-    <DateInput
-      mergeInputs={false}
       inputs={{
         hour: {
           label: 'Hour',
