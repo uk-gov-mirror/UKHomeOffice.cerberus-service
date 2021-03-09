@@ -71,9 +71,6 @@ steps:
   commands:
   - n=0; while [ "$n" -lt 60 ] && [ ! docker stats --no-stream ]; do n=$(( n + 1 )); sleep 1; done
   - docker build -t cerberus-ui-service:$${DRONE_COMMIT_SHA} .
-  volumes:
-    - name: dockersock
-      path: /var/run
   when:
     event:
     - push
@@ -114,7 +111,7 @@ steps:
   commands:
     - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
     - npm ci
-    - npm run cypress:test:local
+    - npm run cypress:test:dev
   when:
     branch:
       exclude:
@@ -266,15 +263,6 @@ steps:
 services:
 - name: docker
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
-  volumes:
-    - name: dockersock
-      path: /var/run
-
-- name: cerberus-ui
-  image: quay.io/ukhomeofficedigital/cerberus-ui-service:$${DRONE_COMMIT_SHA}
-  volumes:
-    - name: dockersock
-      path: /var/run
 
 - name: anchore-submission-server
   pull: always
@@ -282,7 +270,4 @@ services:
   commands:
   - /run.sh server
 
-volumes:
-  - name: dockersock
-    temp: {}
 ...
