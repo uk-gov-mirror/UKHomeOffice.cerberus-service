@@ -65,6 +65,27 @@ steps:
     target:
     - secrets
 
+- name: unit_tests
+  pull: if-not-exists
+  image: quay.io/ukhomeofficedigital/cop-node:12-alpine
+  commands:
+  - node -v
+  - npm -v
+  - npm ci
+  - npm run test
+  when:
+    event:
+    - push
+
+- name: linting
+  pull: if-not-exists
+  image: quay.io/ukhomeofficedigital/cop-node:12-alpine
+  commands:
+  - npm run lint -- .
+  when:
+    event:
+    - push
+
 - name: build
   pull: always
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
