@@ -81,7 +81,7 @@ steps:
   commands:
     - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
     - npm ci
-    - npm run cypress:test:local
+    - npm run cypress:test:dev
   when:
     branch:
       exclude:
