@@ -10,7 +10,7 @@
     "start": "webpack serve --watch --mode=development",
     "test": "jest",
     "cypress:test:local": "cypress run",
-    "cypress:test:dev": "cypress run -- --env configFile=dev",
+    "cypress:test:dev": "cypress run --env configFile=dev",
     "cypress:runner": "cypress open"
   },
   "repository": {
