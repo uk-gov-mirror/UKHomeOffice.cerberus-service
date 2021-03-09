@@ -21,4 +21,9 @@ describe('Sign-in to cerberus UI', () => {
     });
   });
 
+  after(() => {
+    cy.contains('Sign out').click();
+    cy.get('#kc-page-title').should('contain.text', 'Log In');
+  });
+
 });
