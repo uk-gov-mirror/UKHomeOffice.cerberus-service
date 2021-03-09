@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: kubernetes
-name: default
+name: build
 
 platform:
   os: linux
@@ -118,6 +118,9 @@ steps:
     - main
     event:
     - push
+volumes:
+  - name: dockersock
+    temp: {}
 
 ---
 kind: pipeline
