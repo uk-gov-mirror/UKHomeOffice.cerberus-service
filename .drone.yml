@@ -118,10 +118,19 @@ steps:
     - main
     event:
     - push
-volumes:
-  - name: dockersock
-    temp: {}
 
+services:
+- name: docker
+  image: docker:19.03.12-dind
+  volumes:
+    - name: dockersock
+      path: /var/run
+
+- name: anchore-submission-server
+  pull: always
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+  commands:
+    - /run.sh server
 ---
 kind: pipeline
 type: kubernetes
@@ -302,11 +311,4 @@ services:
 volumes:
   - name: dockersock
     temp: {}
-
-- name: anchore-submission-server
-  pull: always
-  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
-  commands:
-  - /run.sh server
-
 ...
