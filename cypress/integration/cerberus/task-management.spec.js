@@ -78,5 +78,4 @@ describe('Verify Task Management Page', () => {
     cy.contains('Sign out').click();
     cy.get('#kc-page-title').should('contain.text', 'Log In');
   });
-
 });

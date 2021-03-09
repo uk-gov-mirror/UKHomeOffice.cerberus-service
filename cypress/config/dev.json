@@ -2,6 +2,5 @@
   "baseUrl": "https://www.dev.cerberus.cop.homeoffice.gov.uk",
   "env": {
     "envname": "development",
-    "host": "https://www.dev.cerberus.cop.homeoffice.gov.uk"
   }
 }

@@ -11,6 +11,7 @@ Cerberus frontend service for cerberus-api
 * [Development with docker](#development-with-docker)
 *  [Tests in native development](#tests-in-native-development)
 * [Linter in native development](#linter-in-native-development)
+* [UI tests in native development](#ui-tests-in-native-development)
 
 ## Getting started
 
@@ -73,10 +74,15 @@ Setup your environment as described in [Native development](#native-development)
 ```sh
 npm run lint -- <directory>
 ```
-### Running UI tests (cypress tests)
+
+## UI tests in native development
+Setup your environment as described in Native development
+
 There are two ways to run cypress tests, using the cypress test runner or running cypress tests using the command line.
-(You will need the cerberus-service application running before triggering the Cypress tests)
+
 By default tests run against local environment.
+
+NOTE: You will need, the cerberus-service application, to be running before triggering Cypress.
 
 #### Running Cypress Test Runner
 ```sh
@@ -99,4 +105,9 @@ npm run cypress:test:dev
 ## Running a specific test
 ```sh
 npm run cypress:test:local -- --spec cypress/integration/cerberus/login.spec.js
+```
+
+## Running specific test with chrome browser
+```sh
+npm run cypress:test:local -- --browser chrome --spec cypress/integration/sGMR/user-register.spec.js
 ```

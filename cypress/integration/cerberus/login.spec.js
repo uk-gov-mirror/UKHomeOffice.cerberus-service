@@ -8,7 +8,7 @@ describe('Sign-in to cerberus UI', () => {
   it('Should Sign-in Successfully', () => {
     const urls = [
       '/tasks',
-      '/issue-target'
+      '/issue-target',
     ];
 
     cy.url().should('include', '/tasks');
@@ -25,5 +25,4 @@ describe('Sign-in to cerberus UI', () => {
     cy.contains('Sign out').click();
     cy.get('#kc-page-title').should('contain.text', 'Log In');
   });
-
 });
