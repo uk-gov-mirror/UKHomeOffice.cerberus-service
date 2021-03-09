@@ -83,3 +83,20 @@ By default tests run against local environment.
 npm run cypress:runner
 ```
 Once TestRunner launched, click on the interested spec inside folder cypress/integration/cerberus
+
+#### Running Cypress tests using the command line
+
+## Running all tests on local Environment, (It executes tests headless mode on Electron Browser)
+```sh
+npm run cypress:test:local
+```
+
+## Running all tests on Development Environment, (It executes tests headless mode on Electron Browser)
+```sh
+npm run cypress:test:dev
+```
+
+## Running a specific test
+```sh
+npm run cypress:test:local -- --spec cypress/integration/cerberus/login.spec.js
+```
