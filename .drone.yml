@@ -1,7 +1,7 @@
 ---
 kind: pipeline
 type: kubernetes
-name: build
+name: default
 
 platform:
   os: linux
@@ -75,20 +75,6 @@ steps:
     event:
     - push
 
-#- name: run_test_dev
-#  pull: always
-#  image: quay.io/ukhomeofficedigital/cop-cypress:6.3.0-node13
-#  commands:
-#    - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
-#    - npm ci
-#    - npm run cypress:test:dev
-#  when:
-#    branch:
-#      exclude:
-#        - master
-#    event:
-#      - push
-
 - name: vulnerability-scan
   pull: always
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
@@ -119,38 +105,17 @@ steps:
     event:
     - push
 
-services:
-- name: docker
-  image: docker:19.03.12-dind
-  volumes:
-    - name: dockersock
-      path: /var/run
-
-- name: anchore-submission-server
+- name: run_test_dev
   pull: always
-  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
-  commands:
-    - /run.sh server
----
-kind: pipeline
-type: kubernetes
-name: test-and-deploy
-
-depends_on:
-  - build
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
-- name: run_tests
-  pull: if-not-exists
   image: quay.io/ukhomeofficedigital/cop-cypress:6.3.0-node13
   commands:
+    - export CYPRESS_CACHE_FOLDER=/home/node/.cache/Cypress
     - npm ci
-    - npm run cypress:test:dev
+    - npm run cypress:test:local
   when:
+    branch:
+      exclude:
+        - master
     event:
       - push
 
@@ -298,17 +263,17 @@ steps:
 services:
 - name: docker
   image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/dind
-  volumes:
-    - name: dockersock
-      path: /var/run
 
 - name: cerberus-ui
   image: quay.io/ukhomeofficedigital/cerberus-ui-service:$${DRONE_COMMIT_SHA}
   volumes:
-     - name: dockersock
-        path: /var/run
+    - name: dockersock
+      path: /var/run
 
-volumes:
-  - name: dockersock
-    temp: {}
+- name: anchore-submission-server
+  pull: always
+  image: 340268328991.dkr.ecr.eu-west-2.amazonaws.com/acp/anchore-submission:latest
+  commands:
+  - /run.sh server
+
 ...
