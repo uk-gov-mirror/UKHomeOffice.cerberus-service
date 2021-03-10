@@ -1,13 +1,15 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
+import moment from 'moment';
 import * as pluralise from 'pluralise';
 
 import tasks from './__fixtures__/tasks';
 import Tabs from '../govuk/Tabs';
 import Accordion from '../govuk/Accordion';
+import Button from '../govuk/Button';
+import { LONG_DATE_FORMAT } from '../constants';
 
 import './__assets__/TaskDetailsPage.scss';
-import Button from '../govuk/Button';
 
 const VersionsTab = ({ task }) => (
   <>
@@ -21,7 +23,7 @@ const VersionsTab = ({ task }) => (
           summary: (
             <>
               <div className="task-versions--left">
-                <div className="govuk-caption-m">{new Date(taskVersion.date).toLocaleString()}</div>
+                <div className="govuk-caption-m">{moment(taskVersion.updated).format(LONG_DATE_FORMAT)}</div>
               </div>
               <div className="task-versions--right">
                 <ul className="govuk-list">
@@ -37,16 +39,16 @@ const VersionsTab = ({ task }) => (
               <p className="govuk-body">{taskVersion.description}</p>
 
               <h3 className="govuk-heading-s govuk-!-margin-0">Consignor</h3>
-              <p className="govuk-body">{taskVersion.consignor.name}</p>
+              <p className="govuk-body">{taskVersion.consignor?.name}</p>
 
               <h3 className="govuk-heading-s govuk-!-margin-0">Consignor address</h3>
-              <p className="govuk-body">{taskVersion.consignor.address}</p>
+              <p className="govuk-body">{taskVersion.consignor?.address}</p>
 
               <h3 className="govuk-heading-s govuk-!-margin-0">Consignee</h3>
-              <p className="govuk-body">{taskVersion.consignee.name}</p>
+              <p className="govuk-body">{taskVersion.consignee?.name}</p>
 
               <h3 className="govuk-heading-s govuk-!-margin-0">Consignee address</h3>
-              <p className="govuk-body">{taskVersion.consignee.address}</p>
+              <p className="govuk-body">{taskVersion.consignee?.address}</p>
 
               <table className="govuk-table">
                 <caption className="govuk-table__caption govuk-heading-s">Consignment</caption>
@@ -71,9 +73,8 @@ const VersionsTab = ({ task }) => (
               </table>
 
               <table className="govuk-table">
-                <caption
-                  className="govuk-table__caption govuk-heading-s"
-                >Consignment
+                <caption className="govuk-table__caption govuk-heading-s">
+                  Consignment
                 </caption>
                 <thead className="govuk-table__head">
                   <tr className="govuk-table__row">
@@ -111,12 +112,12 @@ const ActionsTab = () => (
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
-  const task = tasks.find(({ id }) => id === taskId);
+  const task = tasks.find(({ movementId }) => movementId === taskId);
   return (
     <>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-third">
-          <span className="govuk-caption-xl">{task.id}</span>
+          <span className="govuk-caption-xl">{task.movementId}</span>
           <h1 className="govuk-heading-xl">Task details</h1>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">

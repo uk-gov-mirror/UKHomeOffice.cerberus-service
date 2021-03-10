@@ -1,0 +1,76 @@
+$govuk-assets-path: '~govuk-frontend/govuk/assets/';
+
+@import "~govuk-frontend/govuk/vendor/_sass-mq";
+@import "~govuk-frontend/govuk/settings/all";
+@import "~govuk-frontend/govuk/helpers/all";
+@import "~govuk-frontend/govuk/tools/all";
+
+.task-list--item {
+  margin-bottom: 1em;
+  border-bottom: 1px solid #b1b4b6;
+  padding: 1em 0;
+
+  .task-heading {
+    display: inline-block;
+    margin: 0 0.5em 0 0;
+    padding: 0;
+  }
+
+  .task-sub-heading {
+    display: inline-block;
+    margin: 0;
+    padding: 0;
+  }
+
+  .task-labels {
+    .task-labels-item {
+      display: inline-block;
+      margin-right: 10px;
+    }
+  }
+
+  .task-interact {
+    display: flex;
+    justify-content: flex-end;
+
+    .task-view {
+      float: right;
+      margin: 0.5em 1em 0 0;
+    }
+
+    .task-claim {
+      float: right;
+    }
+  }
+
+  .arrival-title {
+    margin-bottom: 0;
+  }
+
+  .arrival-dates {
+    margin-bottom: 0;
+
+    & :nth-child(odd) {
+      margin-right: .3em;
+    }
+
+    & :nth-child(even) {
+      margin-right: 1em;
+    }
+
+    li {
+      display: inline-block;
+      margin-bottom: 0;
+    }
+  }
+}
+
+.govuk-tag.govuk-tag--positiveTarget {
+  @include govuk-font($size: 14, $weight: bold, $line-height: 1);
+  height: 19px;
+  color: #FFF;
+  background-color: #BC2410;
+  border-radius: 5px;
+  text-transform: capitalize;
+  padding: 3px 5px 0 5px;
+}
