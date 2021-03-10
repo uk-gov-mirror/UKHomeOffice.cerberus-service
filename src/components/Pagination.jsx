@@ -88,7 +88,10 @@ const computeVisiblePieces = (
 };
 
 const Pagination = ({
-  totalPages, itemsPerPage, totalItems, activePage = 1, onPageClick = () => {}, getPageUrl,
+  totalPages, itemsPerPage, totalItems, activePage = 1, onPageClick = (pageNumber, event) => {
+    event.currentTarget.blur();
+    window.scrollTo(0, 0);
+  }, getPageUrl,
 }) => {
   const location = useLocation();
   const defaultGetPageUrlCallback = (page) => `${location.pathname}?page=${page}`;

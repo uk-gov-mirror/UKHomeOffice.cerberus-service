@@ -30,6 +30,7 @@
     "jwt-decode": "^3.1.2",
     "keycloak-js": "^12.0.1",
     "lodash": "^4.17.20",
+    "moment": "^2.29.1",
     "pluralise": "^1.0.1",
     "qs": "^6.9.6",
     "react": "^17.0.1",
