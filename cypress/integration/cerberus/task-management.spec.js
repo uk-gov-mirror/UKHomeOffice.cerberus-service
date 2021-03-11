@@ -35,17 +35,16 @@ describe('Verify Task Management Page', () => {
     cy.navigation('Tasks');
 
     cy.get('.task-heading a.task-view').eq(0).invoke('text').then((text) => {
-       cy.contains(text).click();
-       cy.url().should('include', text);
+      cy.contains(text).click();
+      cy.url().should('include', text);
     });
   });
-
 
   it('should hide first and prev buttons on first page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').then(($items) => {
-      const texts = Array.from($items, el => el.innerText);
+      const texts = Array.from($items, (el) => el.innerText);
       expect(texts).not.to.contain(['First', 'Previous']);
     });
 
@@ -58,7 +57,7 @@ describe('Verify Task Management Page', () => {
     cy.get('.pagination--list a').last().click();
 
     cy.get('.pagination--list a').then(($items) => {
-      const texts = Array.from($items, el => el.innerText);
+      const texts = Array.from($items, (el) => el.innerText);
       expect(texts).not.to.contain(['Next', 'Last']);
     });
   });

@@ -73,6 +73,8 @@ module.exports = {
       rules: {
         'jest/expect-expect': 'off',
         'cypress/no-unnecessary-waiting': 'off',
+        'jest/valid-expect': 'off',
+        'jest/valid-expect-in-promise': 'off',
       },
     },
   ],
