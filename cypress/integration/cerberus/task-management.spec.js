@@ -1,3 +1,6 @@
+/// <reference types="Cypress"/>
+/// <reference path="../support/index.d.ts" />
+
 describe('Verify Task Management Page', () => {
   const MAX_TASK_PER_PAGE = 3;
 
@@ -11,13 +14,11 @@ describe('Verify Task Management Page', () => {
     const taskNavigationItems = [
       'New',
       'In progress',
-      'Paused',
       'Complete',
     ];
     const urls = [
       'new',
       'in-progress',
-      'paused',
       'complete',
     ];
 
@@ -40,7 +41,7 @@ describe('Verify Task Management Page', () => {
     });
   });
 
-  it('should hide first and prev buttons on first page', () => {
+  it('Should hide first and prev buttons on first page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').then(($items) => {
@@ -51,7 +52,7 @@ describe('Verify Task Management Page', () => {
     cy.get('.pagination--summary').should('contain.text', 'Showing 1 - 3');
   });
 
-  it('should hide last and next buttons on last page', () => {
+  it('Should hide last and next buttons on last page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').last().click();
@@ -62,7 +63,7 @@ describe('Verify Task Management Page', () => {
     });
   });
 
-  it('should maintain the page links count', () => {
+  it('Should maintain the page links count', () => {
     cy.navigation('Tasks');
 
     cy.get('.task-list--item').should('have.length', MAX_TASK_PER_PAGE);
