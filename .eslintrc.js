@@ -19,9 +19,7 @@ module.exports = {
     SharedArrayBuffer: 'readonly',
   },
   parserOptions: {
-    ecmaFeatures: {
-      jsx: true,
-    },
+    ecmaFeatures: { jsx: true },
     ecmaVersion: 2018,
     sourceType: 'module',
   },
@@ -44,6 +42,7 @@ module.exports = {
     'no-param-reassign': 'off',
     'no-restricted-globals': 'off',
     'no-restricted-syntax': 'off',
+    'object-curly-newline': ['error', { consistent: true }],
     'import/no-unresolved': 'off',
     'prefer-const': 'off',
     'prefer-destructuring': 'off',
