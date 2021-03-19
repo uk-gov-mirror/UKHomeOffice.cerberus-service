@@ -121,8 +121,9 @@ const TaskDetailsPage = () => {
           <h1 className="govuk-heading-xl">Task details</h1>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">
-          <Button className="govuk-button--warning govuk-!-margin-right-1">Do not load</Button>
-          <Button>Assessment complete</Button>
+          <Button className="govuk-!-margin-right-1">Issue target</Button>
+          <Button className="govuk-button--secondary govuk-!-margin-right-1">Assessment complete</Button>
+          <Button className="govuk-button--warning">Dismiss</Button>
         </div>
       </div>
 
