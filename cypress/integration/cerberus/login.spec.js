@@ -11,7 +11,10 @@ describe('Sign-in to cerberus UI', () => {
       'Issue a target',
       'Sign out',
     ];
-    cy.get('#main-content p').should('contain.text', 'Cypress User!');
+
+    cy.url().should('include', '/tasks');
+
+    cy.get('.govuk-heading-xl').should('contain.text', 'Task management');
 
     cy.get('#navigation li a').each((navigationItem, index) => {
       cy.wrap(navigationItem).should('contain.text', navigationItems[index]).and('be.visible');
