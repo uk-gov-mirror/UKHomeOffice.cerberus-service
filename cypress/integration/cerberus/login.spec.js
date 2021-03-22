@@ -11,6 +11,9 @@ describe('Sign-in to cerberus UI', () => {
       'Issue a target',
       'Sign out',
     ];
+
+    cy.url().should('include', '/tasks');
+
     cy.get('.govuk-heading-xl').should('contain.text', 'Task management');
 
     cy.get('#navigation li a').each((navigationItem, index) => {
