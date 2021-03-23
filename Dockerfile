@@ -1,10 +1,5 @@
 FROM node:10-alpine as builder
 
-ARG ENVIRONMENT=fake-environment
-ARG KEYCLOAK_AUTH_URL=https://sso-fake.build.com/auth
-ARG KEYCLOAK_CLIENT_ID=fake-client-id
-ARG KEYCLOAK_REALM=fake-realm
-
 RUN apk update && apk upgrade
 RUN mkdir -p /src
 
@@ -14,15 +9,20 @@ COPY package*.json ./
 RUN npm install
 COPY . /src
 
+# This allows to pass env vars on runtime
+# Remember to also update run.sh, webpack.config.js and config.js
+ENV KEYCLOAK_AUTH_URL=REPLACE_KEYCLOAK_AUTH_URL \
+    KEYCLOAK_CLIENT_ID=REPLACE_KEYCLOAK_CLIENT_ID \
+    KEYCLOAK_REALM=REPLACE_KEYCLOAK_REALM \
+    FORM_API_URL=REPLACE_FORM_API_URL \
+    REFDATA_API_URL=REPLACE_REFDATA_API_URL
+
 RUN npm run build
 
 # Now build teh final image based on nginx
 FROM alpine:3.7
 
-ENV NGINX_CONFIG_FILE=/etc/nginx/nginx.conf \
-    KEYCLOAK_AUTH_URL=https://sso-fake.build.com/auth \
-    KEYCLOAK_CLIENT_ID=fake-client-id \
-    KEYCLOAK_REALM=fake-realm
+ENV NGINX_CONFIG_FILE=/etc/nginx/nginx.conf
 
 RUN apk upgrade --no-cache && \
     apk add --no-cache nginx bash nginx-mod-http-lua && \

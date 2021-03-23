@@ -24,7 +24,7 @@ const IssueTargetPage = () => {
   }`;
 
   const keycloak = useKeycloak();
-  const axiosInstance = useAxiosInstance();
+  const axiosInstance = useAxiosInstance(config.formApiUrl);
 
   Formio.baseUrl = host;
   Formio.projectUrl = host;
@@ -36,7 +36,7 @@ const IssueTargetPage = () => {
     const loadForm = async () => {
       if (axiosInstance) {
         try {
-          const formResponse = await axiosInstance.get(`${config.formApiUrl}/form/${formId}`);
+          const formResponse = await axiosInstance.get(`/form/${formId}`);
           setForm({
             isLoading: false,
             data: formResponse.data,

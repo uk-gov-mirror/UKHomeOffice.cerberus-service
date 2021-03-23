@@ -3,21 +3,26 @@ import { Link, useLocation } from 'react-router-dom';
 import qs from 'qs';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
+import axios from 'axios';
 
-import Tabs from '../govuk/Tabs';
-import taskFixtures from './__fixtures__/tasks';
-import Pagination from '../components/Pagination';
+import config from '../config';
 import { LONG_DATE_FORMAT, SHORT_DATE_FORMAT } from '../constants';
+import Tabs from '../govuk/Tabs';
+import Pagination from '../components/Pagination';
+import useAxiosInstance from '../utils/axiosInstance';
+import LoadingSpinner from '../forms/LoadingSpinner';
 
 import './__assets__/TaskListPage.scss';
 
 const TaskListPage = () => {
   const [activePage, setActivePage] = useState(0);
   const [tasks, setTasks] = useState([]);
+  const [isLoading, setLoading] = useState(true);
   const location = useLocation();
 
   const itemsPerPage = 3;
-  const totalPages = Math.ceil(taskFixtures.length / itemsPerPage);
+  const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  const axiosInstance = useAxiosInstance(config.camundaApiUrl);
 
   useEffect(() => {
     const { page } = qs.parse(location.search, { ignoreQueryPrefix: true });
@@ -30,7 +35,37 @@ const TaskListPage = () => {
       const index = activePage - 1;
       const offset = index * itemsPerPage;
       const limit = (index + 1) * itemsPerPage;
-      setTasks(taskFixtures.slice(offset, limit));
+
+      const source = axios.CancelToken.source();
+
+      const loadTasks = async () => {
+        if (axiosInstance) {
+          try {
+            const response = await axiosInstance.get('/variable-instance', {
+              params: {
+                variableName: 'taskSummary',
+                deserializeValues: false,
+                firstResult: offset,
+                maxResults: limit,
+              },
+            });
+            const parsedTasks = response.data.map(({ processInstanceId, value }) => ({
+              processInstanceId,
+              ...JSON.parse(value),
+            }));
+            setTasks(parsedTasks);
+          } catch (e) {
+            setTasks([]);
+          } finally {
+            setLoading(false);
+          }
+        }
+      };
+
+      loadTasks();
+      return () => {
+        source.cancel('Cancelling request');
+      };
     }
   }, [activePage]);
 
@@ -49,26 +84,27 @@ const TaskListPage = () => {
               <>
                 <h1 className="govuk-heading-l">New tasks</h1>
 
+                {isLoading && <LoadingSpinner><br /><br /><br /></LoadingSpinner>}
+
                 {tasks.map((task) => {
-                  const newestVersion = task.versions[task.versions.length - 1];
-                  const driver = newestVersion.people.find(({ role }) => role === 'DRIVER');
-                  const passengers = newestVersion.people.filter(({ role }) => role === 'PASSENGER');
-                  const haulier = newestVersion.organisations.find(({ type }) => type === 'ORGHAULIER');
-                  const account = newestVersion.organisations.find(({ type }) => type === 'ORGACCOUNT');
+                  const driver = task.people.find(({ role }) => role === 'DRIVER');
+                  const passengers = task.people.filter(({ role }) => role === 'PASSENGER');
+                  const haulier = task.organisations.find(({ type }) => type === 'ORGHAULIER');
+                  const account = task.organisations.find(({ type }) => type === 'ORGACCOUNT');
 
                   return (
-                    <section className="task-list--item" key={task.movementId}>
+                    <section className="task-list--item" key={task.processInstanceId}>
                       <div className="govuk-grid-row">
                         <div className="govuk-grid-column-three-quarters">
                           <h3 className="govuk-heading-m task-heading">
                             <Link
                               className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold task-view"
-                              to={`/tasks/${task.movementId}`}
+                              to={`/tasks/${task.processInstanceId}`}
                             >{task.movementId}
                             </Link>
                           </h3>
                           <h4 className="govuk-heading-m task-sub-heading govuk-!-font-weight-regular">
-                            {newestVersion.movementStatus}
+                            {task.movementStatus}
                           </h4>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
@@ -80,13 +116,13 @@ const TaskListPage = () => {
                       <div className="govuk-grid-row">
                         <div className="govuk-grid-column-full">
                           <p className="govuk-body-s arrival-title">
-                            {newestVersion.voyage?.description}, arrival {moment(newestVersion.arrivalTime).fromNow()}
+                            {task.voyage?.description}, arrival {moment(task.arrivalTime).fromNow()}
                           </p>
                           <ul className="govuk-list arrival-dates govuk-!-margin-bottom-4">
-                            <li className="govuk-!-font-weight-bold">{newestVersion.voyage?.departFrom}</li>
-                            <li>{moment(newestVersion.departureTime).format(LONG_DATE_FORMAT)}</li>
-                            <li className="govuk-!-font-weight-bold">{newestVersion.voyage?.arriveAt}</li>
-                            <li>{moment(newestVersion.arrivalTime).format(LONG_DATE_FORMAT)}</li>
+                            <li className="govuk-!-font-weight-bold">{task.voyage?.departFrom}</li>
+                            <li>{moment(task.departureTime).format(LONG_DATE_FORMAT)}</li>
+                            <li className="govuk-!-font-weight-bold">{task.voyage?.arriveAt}</li>
+                            <li>{moment(task.arrivalTime).format(LONG_DATE_FORMAT)}</li>
                           </ul>
                         </div>
                       </div>
@@ -100,7 +136,7 @@ const TaskListPage = () => {
                               {driver?.fullName}
                             </span>, DOB: {moment(driver?.dateOfBirth).format(SHORT_DATE_FORMAT)},
                             {' '}
-                            {pluralise.withCount(newestVersion.aggregateDriverTrips, '% trip', '% trips')}
+                            {pluralise.withCount(task.aggregateDriverTrips || '?', '% trip', '% trips')}
                           </p>
                           <h3 className="govuk-heading-s govuk-!-margin-bottom-1 govuk-!-font-size-16 govuk-!-font-weight-regular">
                             Passenger details
@@ -115,20 +151,20 @@ const TaskListPage = () => {
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
                             <span className="govuk-!-font-weight-bold">
-                              {newestVersion.vehicles[0].registrationNumber}
-                            </span>, {newestVersion.vehicles[0].description},
+                              {task.vehicles[0].registrationNumber}
+                            </span>, {task.vehicles[0].description || 'No description'},
                             {' '}
-                            {pluralise.withCount(newestVersion.aggregateVehicleTrips, '% trip', '% trips')}
+                            {pluralise.withCount(task.aggregateVehicleTrips || 0, '% trip', '% trips')}
                           </p>
                           <h3 className="govuk-heading-s govuk-!-margin-bottom-1 govuk-!-font-size-16 govuk-!-font-weight-regular">
                             Trailer details
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
                             <span className="govuk-!-font-weight-bold">
-                              {newestVersion.trailers[0].registrationNumber}
-                            </span>, {newestVersion.trailers[0].description},
+                              {task.trailers[0].registrationNumber}
+                            </span>, {task.trailers[0].description || 'No description'},
                             {' '}
-                            {pluralise.withCount(newestVersion.aggregateTrailerTrips, '% trip', '% trips')}
+                            {pluralise.withCount(task.aggregateTrailerTrips || 0, '% trip', '% trips')}
                           </p>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
@@ -144,7 +180,7 @@ const TaskListPage = () => {
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
                             <span className="govuk-!-font-weight-bold">
                               {account.name}
-                            </span>, Booked on {moment(newestVersion.bookingDateTime).format(SHORT_DATE_FORMAT)}
+                            </span>, Booked on {moment(task.bookingDateTime).format(SHORT_DATE_FORMAT)}
                           </p>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
@@ -152,7 +188,7 @@ const TaskListPage = () => {
                             Goods details
                           </h3>
                           <p className="govuk-body-s govuk-!-font-weight-bold">
-                            {newestVersion.freight.descriptionOfCargo}
+                            {task.freight.descriptionOfCargo}
                           </p>
                         </div>
                       </div>
@@ -161,11 +197,11 @@ const TaskListPage = () => {
                           <ul className="govuk-list task-labels govuk-!-margin-top-2 govuk-!-margin-bottom-0">
                             <li className="task-labels-item">
                               <strong className="govuk-tag govuk-tag--positiveTarget">
-                                {newestVersion.matchedSelectors?.[0]?.priority}
+                                {task.matchedSelectors?.[0]?.priority}
                               </strong>
                             </li>
                             <li className="task-labels-item">
-                              {newestVersion.matchedSelectors?.[0]?.threatType}
+                              {task.matchedSelectors?.[0]?.threatType}
                             </li>
                           </ul>
                         </div>
@@ -175,7 +211,7 @@ const TaskListPage = () => {
                 })}
 
                 <Pagination
-                  totalItems={taskFixtures.length}
+                  totalItems={tasks.length}
                   itemsPerPage={itemsPerPage}
                   activePage={activePage}
                   totalPages={totalPages}
