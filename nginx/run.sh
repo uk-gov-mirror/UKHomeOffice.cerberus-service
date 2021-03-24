@@ -24,7 +24,7 @@ echo "== Finished ENV sub =="
 # config file takes precedence
 if [[ -f ${NGINX_CONFIG_FILE} ]]; then
   echo "== Starting nginx using a config file =="
-  sed -i 's,REPLACE_CAMUNDA_API_URL,'${CAMUNDA_API_URL}',g' ${NGINX_CONFIG_FILE}
+  sed -i 's,REPLACE_CERBERUS_API_URL,'${CERBERUS_API_URL}',g' ${NGINX_CONFIG_FILE}
   nginx -g 'daemon off;' -c ${NGINX_CONFIG_FILE}
 elif [[ -n ${NGINX_CONFIG} ]]; then
   echo "== Starting nginx using a config variable =="

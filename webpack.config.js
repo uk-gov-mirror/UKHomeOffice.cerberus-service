@@ -64,7 +64,7 @@ module.exports = {
     port: process.env.PORT || 8080,
     proxy: {
       '/camunda-proxy': {
-        target: process.env.CAMUNDA_API_URL,
+        target: process.env.CERBERUS_API_URL,
         pathRewrite: { '^/camunda-proxy': '' },
         secure: false,
         changeOrigin: true,
