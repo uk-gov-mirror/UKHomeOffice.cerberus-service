@@ -159,6 +159,12 @@ steps:
       from_secret: NGINX_IMAGE
     NGINX_TAG:
       from_secret: NGINX_TAG
+    FORM_API_URL:
+      from_secret: DEV_API_FORM_CERBERUS_URL
+    REFDATA_API_URL:
+      from_secret: DEV_REFDATA_API_URL
+    CERBERUS_WORKFLOW_SERVICE_URL:
+      from_secret: DEV_CERBERUS_SERVICE_URL
   when:
     branch:
     - main
