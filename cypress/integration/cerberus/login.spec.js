@@ -6,19 +6,16 @@ describe('Sign-in to cerberus UI', () => {
   });
 
   it('Should Sign-in Successfully', () => {
-    const urls = [
-      '/tasks',
-      '/issue-target',
-    ];
-
     cy.url().should('include', '/tasks');
 
     cy.get('.govuk-heading-xl').should('contain.text', 'Task management');
 
-    cy.get('#navigation li a').each((navigationItem, index) => {
-      cy.wrap(navigationItem).click();
-      cy.url().should('include', urls[index]);
-    });
+    cy.contains('Issue a target').click();
+    cy.url().should('include', '/issue-target');
+
+    cy.contains('Tasks').click();
+    cy.url().should('include', '/tasks');
+
   });
 
   after(() => {

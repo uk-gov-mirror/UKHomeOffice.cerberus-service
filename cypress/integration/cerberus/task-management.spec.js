@@ -37,11 +37,11 @@ describe('Verify Task Management Page', () => {
 
     cy.get('.task-heading a.task-view').eq(0).invoke('text').then((text) => {
       cy.contains(text).click();
-      cy.url().should('include', text);
+      cy.get('.govuk-caption-xl').should('have.text', text);
     });
   });
 
-  it('Should hide first and prev buttons on first page', () => {
+  it.skip('Should hide first and prev buttons on first page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').then(($items) => {
@@ -52,7 +52,7 @@ describe('Verify Task Management Page', () => {
     cy.get('.pagination--summary').should('contain.text', 'Showing 1 - 3');
   });
 
-  it('Should hide last and next buttons on last page', () => {
+  it.skip('Should hide last and next buttons on last page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').last().click();
@@ -63,7 +63,7 @@ describe('Verify Task Management Page', () => {
     });
   });
 
-  it('Should maintain the page links count', () => {
+  it.skip('Should maintain the page links count', () => {
     cy.navigation('Tasks');
 
     cy.get('.task-list--item').should('have.length', MAX_TASK_PER_PAGE);
