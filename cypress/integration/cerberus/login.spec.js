@@ -15,7 +15,6 @@ describe('Sign-in to cerberus UI', () => {
 
     cy.contains('Tasks').click();
     cy.url().should('include', '/tasks');
-
   });
 
   after(() => {
