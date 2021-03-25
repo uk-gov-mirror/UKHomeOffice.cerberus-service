@@ -13,7 +13,7 @@ const config = {
   },
   refdataApiUrl: process.env.REFDATA_API_URL,
   formApiUrl: process.env.FORM_API_URL,
-  camundaApiUrl: '/camunda-proxy',
+  camundaApiUrl: '/camunda',
 };
 
 export default config;
