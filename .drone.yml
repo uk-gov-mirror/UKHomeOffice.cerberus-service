@@ -160,7 +160,7 @@ steps:
     NGINX_TAG:
       from_secret: NGINX_TAG
     FORM_API_URL:
-      from_secret: DEV_API_FORM_CERBERUS_URL
+      from_secret: DEV_API_FORM_URL
     REFDATA_API_URL:
       from_secret: DEV_REFDATA_API_URL
     CERBERUS_WORKFLOW_SERVICE_URL:
