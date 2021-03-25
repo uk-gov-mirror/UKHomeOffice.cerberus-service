@@ -1,123 +1,81 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
+import axios from 'axios';
+import { get } from 'lodash';
 
-import tasks from './__fixtures__/tasks';
-import Tabs from '../govuk/Tabs';
+import config from '../config';
+import { LONG_DATE_FORMAT } from '../constants';
 import Accordion from '../govuk/Accordion';
 import Button from '../govuk/Button';
-import { LONG_DATE_FORMAT } from '../constants';
+import useAxiosInstance from '../utils/axiosInstance';
+import LoadingSpinner from '../forms/LoadingSpinner';
 
 import './__assets__/TaskDetailsPage.scss';
 
-const VersionsTab = ({ task }) => (
-  <>
-    <h2 className="govuk-heading-l govuk-!-margin-bottom-0">Details</h2>
-    <Accordion
-      className="task-versions"
-      id="task-versions"
-      items={task.versions.slice(0).reverse().map((taskVersion, index) => (
-        {
-          heading: `Version ${task.versions.length - index}`,
-          summary: (
-            <>
-              <div className="task-versions--left">
-                <div className="govuk-caption-m">{moment(taskVersion.updated).format(LONG_DATE_FORMAT)}</div>
-              </div>
-              <div className="task-versions--right">
-                <ul className="govuk-list">
-                  <li>{pluralise.withCount(taskVersion.changes, '% change', '% changes', 'No changes')} in this version</li>
-                  <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">Tier 1</strong> from version 1</li>
-                </ul>
-              </div>
-            </>
-          ),
-          children: (
-            <>
-              <h3 className="govuk-heading-s govuk-!-margin-0">Description</h3>
-              <p className="govuk-body">{taskVersion.description}</p>
-
-              <h3 className="govuk-heading-s govuk-!-margin-0">Consignor</h3>
-              <p className="govuk-body">{taskVersion.consignor?.name}</p>
-
-              <h3 className="govuk-heading-s govuk-!-margin-0">Consignor address</h3>
-              <p className="govuk-body">{taskVersion.consignor?.address}</p>
-
-              <h3 className="govuk-heading-s govuk-!-margin-0">Consignee</h3>
-              <p className="govuk-body">{taskVersion.consignee?.name}</p>
-
-              <h3 className="govuk-heading-s govuk-!-margin-0">Consignee address</h3>
-              <p className="govuk-body">{taskVersion.consignee?.address}</p>
-
-              <table className="govuk-table">
-                <caption className="govuk-table__caption govuk-heading-s">Consignment</caption>
-                <thead className="govuk-table__head">
-                  <tr className="govuk-table__row">
-                    <th scope="col" className="govuk-table__header">MAWB</th>
-                    <th scope="col" className="govuk-table__header">Country of origin</th>
-                    <th scope="col" className="govuk-table__header">Mode</th>
-                    <th scope="col" className="govuk-table__header">Carrier</th>
-                  </tr>
-                </thead>
-                <tbody className="govuk-table__body">
-                  <tr className="govuk-table__row">
-                    <td className="govuk-table__cell">
-                      <span className="task-versions--highlight">{taskVersion.consignment.mawb}</span>
-                    </td>
-                    <td className="govuk-table__cell" />
-                    <td className="govuk-table__cell">{taskVersion.consignment.mode}</td>
-                    <td className="govuk-table__cell">{taskVersion.consignment.carrier}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <table className="govuk-table">
-                <caption className="govuk-table__caption govuk-heading-s">
-                  Consignment
-                </caption>
-                <thead className="govuk-table__head">
-                  <tr className="govuk-table__row">
-                    <th scope="col" className="govuk-table__header">HAWB</th>
-                    <th scope="col" className="govuk-table__header">Weight</th>
-                    <th scope="col" className="govuk-table__header">Number of pieces</th>
-                    <th scope="col" className="govuk-table__header">Value of shipment</th>
-                  </tr>
-                </thead>
-                <tbody className="govuk-table__body">
-                  <tr className="govuk-table__row">
-                    <td className="govuk-table__cell">{taskVersion.consignment.hawb}</td>
-                    <td className="govuk-table__cell">{taskVersion.consignment.weight}</td>
-                    <td className="govuk-table__cell">
-                      <span className="task-versions--highlight">{taskVersion.consignment.numberOfPieces}</span>
-                    </td>
-                    <td className="govuk-table__cell">£{taskVersion.consignment.shipmentValue}</td>
-                  </tr>
-                </tbody>
-              </table>
-
-              <h3 className="govuk-heading-s govuk-!-margin-0">Rule match</h3>
-              <p className="govuk-body">Rule name / Threat / Abuse type</p>
-            </>
-          ),
-        }
-      ))}
-    />
-  </>
-);
-
-const ActionsTab = () => (
-  <div>--- Here will be a form ---</div>
-);
-
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
-  const task = tasks.find(({ movementId }) => movementId === taskId);
+  const axiosInstance = useAxiosInstance(config.camundaApiUrl);
+  const [taskVersions, setTaskVersions] = useState([]);
+  const [isLoading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const source = axios.CancelToken.source();
+
+    const loadTask = async () => {
+      if (axiosInstance) {
+        try {
+          const response = await axiosInstance.get('/variable-instance', {
+            params: {
+              deserializeValues: false,
+              processInstanceIdIn: taskId,
+            },
+          });
+
+          const parsedItems = response.data.map(({ name, type, value }) => {
+            const parsedValue = type === 'Json' ? JSON.parse(value) : value;
+            return { name, value: parsedValue };
+          });
+          console.log(parsedItems);
+
+          const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory'];
+          const parsedTask = response.data
+            .filter((t) => whitelistedCamundaVars.includes(t.name))
+            .reduce((acc, camundaVar) => {
+              acc[camundaVar.name] = JSON.parse(camundaVar.value);
+              return acc;
+            }, {});
+          console.log(parsedTask);
+          setTaskVersions([parsedTask]);
+        } catch (e) {
+          console.log(e);
+          setTaskVersions([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadTask();
+    return () => {
+      source.cancel('Cancelling request');
+    };
+  }, [axiosInstance]);
+
+  if (isLoading) {
+    return <LoadingSpinner><br /><br /><br /></LoadingSpinner>;
+  }
+
+  if (taskVersions.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-third">
-          <span className="govuk-caption-xl">{task.movementId}</span>
+          <span className="govuk-caption-xl">{taskVersions[0].taskSummary.movementId}</span>
           <h1 className="govuk-heading-xl">Task details</h1>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">
@@ -129,28 +87,351 @@ const TaskDetailsPage = () => {
 
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-two-thirds">
-          <Tabs
-            title="Details"
-            id="task-details"
-            items={[
-              {
-                id: 'details',
-                label: 'Details',
-                panel: <VersionsTab task={task} />,
-              },
-              { id: 'actions', label: 'Actions', panel: <ActionsTab task={task} /> },
-            ]}
+          <Accordion
+            className="task-versions"
+            id="task-versions"
+            items={taskVersions.slice(0).reverse().map((task, index) => {
+              const { taskSummary } = task;
+              const versionNumber = taskVersions.length - index;
+              const vehicle = get(task, 'vehicleHistory[0][0]vehicle', {});
+              const trailer = get(taskSummary, 'trailers[0]', {});
+              const account = taskSummary.organisations.find(({ type }) => type === 'ORGACCOUNT');
+              const haulier = taskSummary.organisations.find(({ type }) => type === 'ORGHAULIER');
+              const driver = taskSummary.people.find(({ role }) => role === 'DRIVER');
+              const passengers = taskSummary.people.filter(({ role }) => role === 'PASSENGER');
+              const freight = taskSummary.freight;
+              const consignee = taskSummary.consignee;
+              const consignor = taskSummary.consignor;
+              const matchedRules = get(task, 'ruleHistory[0]', []);
+              return (
+                {
+                  heading: `Version ${versionNumber}`,
+                  summary: (
+                    <>
+                      <div className="task-versions--left">
+                        <div className="govuk-caption-m">{moment(task.bookingDateTime).format(LONG_DATE_FORMAT)}</div>
+                      </div>
+                      <div className="task-versions--right">
+                        <ul className="govuk-list">
+                          <li>{pluralise.withCount(0, '% change', '% changes', 'No changes')} in this version</li>
+                          <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">{taskSummary.matchedSelectors[0].priority}</strong> from version {versionNumber}</li>
+                        </ul>
+                      </div>
+                    </>
+                  ),
+                  children: (
+                    <>
+                      <h2 className="govuk-heading-m">Vehicle details</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Registration number</dt>
+                          <dd className="govuk-summary-list__value">{vehicle.registrationNumber}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Type</dt>
+                          <dd className="govuk-summary-list__value">{vehicle.type}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Make</dt>
+                          <dd className="govuk-summary-list__value">{vehicle.make}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Model</dt>
+                          <dd className="govuk-summary-list__value">{vehicle.model}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Country of registration</dt>
+                          <dd className="govuk-summary-list__value">{vehicle.registrationCountry}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Trailer registration number</dt>
+                          <dd className="govuk-summary-list__value">{trailer.registrationNumber}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Trailer type</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Trailer country of registration</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Empty or loaded</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Trailer length</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Trailer height</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Account details</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Full name</dt>
+                          <dd className="govuk-summary-list__value">{account.name}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Short name</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Reference number</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Address</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Telephone</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Mobile</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Email</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Haulier details</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Name</dt>
+                          <dd className="govuk-summary-list__value">{haulier.name}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Address</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Telephone</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Mobile</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Driver</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Name</dt>
+                          <dd className="govuk-summary-list__value">{driver.name}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Date of birth</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Gender</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Nationality</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Travel document type</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Travel document number</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Travel document expiry</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      {passengers.length > 0 && <h2 className="govuk-heading-m">Passengers</h2>}
+
+                      {passengers.map((passenger) => (
+                        <dl key={passenger.name} className="govuk-summary-list govuk-!-margin-bottom-9">
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Name</dt>
+                            <dd className="govuk-summary-list__value">{passenger.name}</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Date of birth</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Gender</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Nationality</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Travel document type</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Travel document number</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Travel document expiry</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                        </dl>
+                      ))}
+
+                      <h2 className="govuk-heading-m">Goods</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Description of goods</dt>
+                          <dd className="govuk-summary-list__value">{freight.descriptionOfCargo}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Is cargo hazardous?</dt>
+                          <dd className="govuk-summary-list__value">{freight.hazardousCargo === 'true' ? 'Yes' : 'No'}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Weight of goods</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Booking</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Reference</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Ticket number</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Type</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Name</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Address</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Date and time</dt>
+                          <dd className="govuk-summary-list__value">{moment(taskSummary.bookingDateTime).format(LONG_DATE_FORMAT)}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Country</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Payment method</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Ticket price</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Ticket type</dt>
+                          <dd className="govuk-summary-list__value">TODO</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Consignee details</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Name</dt>
+                          <dd className="govuk-summary-list__value">{consignee?.name}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Address</dt>
+                          <dd className="govuk-summary-list__value">{consignee?.address}</dd>
+                        </div>
+                      </dl>
+
+                      <h2 className="govuk-heading-m">Consignor details</h2>
+
+                      <dl className="govuk-summary-list govuk-!-margin-bottom-9">
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Name</dt>
+                          <dd className="govuk-summary-list__value">{consignor?.name}</dd>
+                        </div>
+                        <div className="govuk-summary-list__row">
+                          <dt className="govuk-summary-list__key">Address</dt>
+                          <dd className="govuk-summary-list__value">{consignor?.address}</dd>
+                        </div>
+                      </dl>
+
+                      {matchedRules.length > 0 && <h2 className="govuk-heading-m">Rules matched</h2>}
+
+                      {matchedRules.map((rule) => (
+                        <dl key={rule.ruleName} className="govuk-summary-list govuk-!-margin-bottom-9">
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Name</dt>
+                            <dd className="govuk-summary-list__value">{rule.ruleName}</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Category</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Version</dt>
+                            <dd className="govuk-summary-list__value">{rule.ruleVersion}</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Abuse type</dt>
+                            <dd className="govuk-summary-list__value">{rule.abuseType}</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Agency</dt>
+                            <dd className="govuk-summary-list__value">TODO</dd>
+                          </div>
+                          <div className="govuk-summary-list__row">
+                            <dt className="govuk-summary-list__key">Description</dt>
+                            <dd className="govuk-summary-list__value">{rule.ruleDescription}</dd>
+                          </div>
+                        </dl>
+                      ))}
+
+                      <h2 className="govuk-heading-m">Risk factors</h2>
+                      <p>TODO</p>
+                    </>
+                  ),
+                }
+              );
+            })}
           />
         </div>
         <div className="govuk-grid-column-one-third">
           <h2 className="govuk-heading-m">Notes</h2>
 
-          --- Here will be a form ---
+          <p>TODO</p>
 
           <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
+
           <h3 className="govuk-heading-m">Activity</h3>
 
-          {task.activity.map((activity) => (
+          <p>TODO</p>
+
+          {[].map((activity) => (
             <>
               <p className="govuk-body-s govuk-!-margin-bottom-2">
                 <span className="govuk-!-font-weight-bold">

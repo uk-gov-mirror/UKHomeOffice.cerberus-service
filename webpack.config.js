@@ -48,20 +48,27 @@ module.exports = {
         { from: 'node_modules/govuk-frontend/govuk/assets', to: 'assets' },
       ],
     }),
-    new webpack.DefinePlugin({
-      'process.env': {
-        KEYCLOAK_AUTH_URL: JSON.stringify(process.env.KEYCLOAK_AUTH_URL),
-        KEYCLOAK_CLIENT_ID: JSON.stringify(process.env.KEYCLOAK_CLIENT_ID),
-        KEYCLOAK_REALM: JSON.stringify(process.env.KEYCLOAK_REALM),
-        FORM_API_URL: JSON.stringify(process.env.FORM_API_URL),
-        REFDATA_API_URL: JSON.stringify(process.env.REFDATA_API_URL),
-      },
+    // Remember to also update run.sh, Dockerfile and config.js
+    new webpack.EnvironmentPlugin({
+      KEYCLOAK_AUTH_URL: 'https://sso-dev.notprod.homeoffice.gov.uk/auth',
+      KEYCLOAK_CLIENT_ID: 'cerberus',
+      KEYCLOAK_REALM: 'cop-dev',
+      FORM_API_URL: undefined,
+      REFDATA_API_URL: undefined,
     }),
     new HtmlWebpackPlugin({ template: './src/index.html' }),
   ],
   devServer: {
     historyApiFallback: true,
     hot: true,
-    port: 8080,
+    port: process.env.PORT || 8080,
+    proxy: {
+      '/camunda': {
+        target: process.env.CERBERUS_API_URL,
+        pathRewrite: { '^/camunda': '' },
+        secure: false,
+        changeOrigin: true,
+      },
+    },
   },
 };

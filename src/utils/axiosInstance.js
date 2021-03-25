@@ -2,13 +2,13 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useKeycloak } from './keycloak';
 
-const useAxiosInstance = () => {
+const useAxiosInstance = (baseURL = '/') => {
   const keycloak = useKeycloak();
   const [axiosInstance, setAxiosInstance] = useState({});
 
   useEffect(() => {
     const instance = axios.create({
-      baseURL: '/',
+      baseURL,
       headers: {
         Authorization: keycloak ? `Bearer ${keycloak.token}` : undefined,
       },
