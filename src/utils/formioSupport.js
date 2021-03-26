@@ -2,6 +2,9 @@ import FormioUtils from 'formiojs/utils';
 import axios from 'axios';
 import jwtDecode from 'jwt-decode';
 import qs from 'querystring';
+import useAxiosInstance from './axiosInstance';
+import config from '../config';
+import { useKeycloak } from './keycloak';
 
 export const interpolate = (form, data) => {
   FormioUtils.eachComponent(
@@ -92,3 +95,38 @@ export const augmentRequest = (keycloak) => ({
     return Promise.resolve(requestArgs);
   },
 });
+
+export const useFormSubmit = () => {
+  const camundaClient = useAxiosInstance(config.camundaApiUrl);
+  const keycloak = useKeycloak();
+
+  return async (processKey, businessKey, form, submission, onError) => {
+    const { versionId, id, title, name } = form;
+    const variables = {
+      [name]: {
+        value: JSON.stringify({
+          ...submission.data,
+          formVersionId: versionId,
+          formId: id,
+          title,
+          name,
+          submissionDate: new Date(),
+          submittedBy: keycloak.tokenParsed.email,
+        }),
+        type: 'json',
+      },
+      initiatedBy: {
+        value: keycloak.tokenParsed.email,
+        type: 'string',
+      },
+    };
+    try {
+      await camundaClient.post(`/process-definition/key/${processKey}/submit-form`, {
+        variables,
+        businessKey,
+      });
+    } catch (e) {
+      onError(e);
+    }
+  };
+};
