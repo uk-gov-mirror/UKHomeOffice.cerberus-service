@@ -2,50 +2,46 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Formio, Form } from 'react-formio';
 import gds from '@digitalpatterns/formio-gds-template/lib';
+import { isEmpty } from 'lodash';
 
 import config from '../config';
 import Panel from '../govuk/Panel';
 import useAxiosInstance from '../utils/axiosInstance';
 import LoadingSpinner from '../forms/LoadingSpinner';
 import { useKeycloak } from '../utils/keycloak';
-import { augmentRequest, interpolate } from '../utils/formioSupport';
+import {
+  augmentRequest,
+  interpolate,
+  useFormSubmit,
+} from '../utils/formioSupport';
+import ErrorSummary from '../govuk/ErrorSummary';
 
 Formio.use(gds);
 
 const IssueTargetPage = () => {
   const formId = '59ae1bdd-f2a5-475a-ad5f-4b5cd4cd0a95';
   const [success, setSuccess] = useState(false);
-  const [form, setForm] = useState({
-    isLoading: true,
-    data: null,
-  });
-  const host = `${window.location.protocol}//${window.location.hostname}${
-    window.location.port ? `:${window.location.port}` : ''
-  }`;
-
+  const [error, setError] = useState(null);
+  const [form, setForm] = useState({});
+  const [formIsLoading, setFormIsLoading] = useState(false);
+  const submitForm = useFormSubmit();
   const keycloak = useKeycloak();
-  const axiosInstance = useAxiosInstance(config.formApiUrl);
+  const formApiClient = useAxiosInstance(config.formApiUrl);
 
-  Formio.baseUrl = host;
-  Formio.projectUrl = host;
   Formio.plugins = [augmentRequest(keycloak)];
 
   useEffect(() => {
     const source = axios.CancelToken.source();
 
     const loadForm = async () => {
-      if (axiosInstance) {
+      if (formApiClient) {
         try {
-          const formResponse = await axiosInstance.get(`/form/${formId}`);
-          setForm({
-            isLoading: false,
-            data: formResponse.data,
-          });
+          const formResponse = await formApiClient.get(`/form/${formId}`);
+          setForm(formResponse.data);
+          setFormIsLoading(false);
         } catch (e) {
-          setForm({
-            isLoading: false,
-            data: null,
-          });
+          setForm(null);
+          setFormIsLoading(false);
         }
       }
     };
@@ -54,42 +50,63 @@ const IssueTargetPage = () => {
     return () => {
       source.cancel('Cancelling request');
     };
-  }, [formId, axiosInstance]);
+  }, [formId, formApiClient]);
 
   if (success) {
     return <Panel title="Form submitted">Thank you for submitting the target information sheet.</Panel>;
   }
 
-  if (form.isLoading) {
-    return <LoadingSpinner><br /><br /><br /></LoadingSpinner>;
+  if (!isEmpty(form)) {
+    interpolate(form, {
+      keycloakContext: {
+        accessToken: keycloak.token,
+        refreshToken: keycloak.refreshToken,
+        sessionId: keycloak.tokenParsed.session_state,
+        email: keycloak.tokenParsed.email,
+        givenName: keycloak.tokenParsed.given_name,
+        familyName: keycloak.tokenParsed.family_name,
+        subject: keycloak.subject,
+        url: keycloak.authServerUrl,
+        realm: keycloak.realm,
+        roles: keycloak.tokenParsed.realm_access.roles,
+        groups: keycloak.tokenParsed.groups,
+      },
+      environmentContext: {
+        referenceDataUrl: config.refdataApiUrl,
+      },
+    });
   }
 
-  interpolate(form.data, {
-    keycloakContext: {
-      accessToken: keycloak.token,
-      refreshToken: keycloak.refreshToken,
-      sessionId: keycloak.tokenParsed.session_state,
-      email: keycloak.tokenParsed.email,
-      givenName: keycloak.tokenParsed.given_name,
-      familyName: keycloak.tokenParsed.family_name,
-      subject: keycloak.subject,
-      url: keycloak.authServerUrl,
-      realm: keycloak.realm,
-      roles: keycloak.tokenParsed.realm_access.roles,
-      groups: keycloak.tokenParsed.groups,
-    },
-    environmentContext: {
-      referenceDataUrl: config.refdataApiUrl,
-    },
-  });
-
   return (
-    <Form
-      form={form.data}
-      onSubmit={() => {
-        setSuccess(true);
-      }}
-    />
+    <>
+      <LoadingSpinner loading={formIsLoading}>
+        {error && (
+          <ErrorSummary
+            title="There is a problem"
+            errorList={[
+              { children: error },
+            ]}
+          />
+        )}
+        {!isEmpty(form) && (
+          <Form
+            form={form}
+            onSubmit={async (data) => {
+              setFormIsLoading(true);
+              await submitForm(
+                'assignTarget',
+                'CRB-123', // TODO: Generate dynamic and unique business keys.
+                form,
+                data,
+                (e) => setError(e.message),
+              );
+              setSuccess(true);
+              setFormIsLoading(false);
+            }}
+          />
+        )}
+      </LoadingSpinner>
+    </>
   );
 };
 
