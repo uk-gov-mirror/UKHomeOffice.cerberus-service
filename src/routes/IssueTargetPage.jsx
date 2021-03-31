@@ -23,7 +23,7 @@ const IssueTargetPage = () => {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [form, setForm] = useState({});
-  const [formIsLoading, setFormIsLoading] = useState(false);
+  const [formIsLoading, setFormIsLoading] = useState(true);
   const submitForm = useFormSubmit();
   const keycloak = useKeycloak();
   const formApiClient = useAxiosInstance(config.formApiUrl);
@@ -38,9 +38,9 @@ const IssueTargetPage = () => {
         try {
           const formResponse = await formApiClient.get(`/form/${formId}`);
           setForm(formResponse.data);
-          setFormIsLoading(false);
         } catch (e) {
           setForm(null);
+        } finally {
           setFormIsLoading(false);
         }
       }
