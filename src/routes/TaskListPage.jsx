@@ -10,6 +10,7 @@ import { LONG_DATE_FORMAT, SHORT_DATE_FORMAT } from '../constants';
 import Tabs from '../govuk/Tabs';
 import Pagination from '../components/Pagination';
 import useAxiosInstance from '../utils/axiosInstance';
+import useInterval from '../utils/useInterval';
 import LoadingSpinner from '../forms/LoadingSpinner';
 
 import './__assets__/TaskListPage.scss';
@@ -22,7 +23,34 @@ const TaskListPage = () => {
 
   const itemsPerPage = 3;
   const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  const index = activePage - 1;
+  const offset = index * itemsPerPage;
+  const limit = (index + 1) * itemsPerPage;
   const axiosInstance = useAxiosInstance(config.camundaApiUrl);
+
+  const loadTasks = async () => {
+    if (axiosInstance) {
+      try {
+        const response = await axiosInstance.get('/variable-instance', {
+          params: {
+            variableName: 'taskSummary',
+            deserializeValues: false,
+            firstResult: offset,
+            maxResults: limit,
+          },
+        });
+        const parsedTasks = response.data.map(({ processInstanceId, value }) => ({
+          processInstanceId,
+          ...JSON.parse(value),
+        }));
+        setTasks(parsedTasks);
+      } catch (e) {
+        setTasks([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const { page } = qs.parse(location.search, { ignoreQueryPrefix: true });
@@ -32,42 +60,22 @@ const TaskListPage = () => {
 
   useEffect(() => {
     if (activePage > 0) {
-      const index = activePage - 1;
-      const offset = index * itemsPerPage;
-      const limit = (index + 1) * itemsPerPage;
-
       const source = axios.CancelToken.source();
-
-      const loadTasks = async () => {
-        if (axiosInstance) {
-          try {
-            const response = await axiosInstance.get('/variable-instance', {
-              params: {
-                variableName: 'taskSummary',
-                deserializeValues: false,
-                firstResult: offset,
-                maxResults: limit,
-              },
-            });
-            const parsedTasks = response.data.map(({ processInstanceId, value }) => ({
-              processInstanceId,
-              ...JSON.parse(value),
-            }));
-            setTasks(parsedTasks);
-          } catch (e) {
-            setTasks([]);
-          } finally {
-            setLoading(false);
-          }
-        }
-      };
-
       loadTasks();
       return () => {
         source.cancel('Cancelling request');
       };
     }
   }, [activePage]);
+
+  useInterval(() => {
+    const source = axios.CancelToken.source();
+    setLoading(true);
+    loadTasks();
+    return () => {
+      source.cancel('Cancelling request');
+    };
+  }, 60000);
 
   return (
     <>
