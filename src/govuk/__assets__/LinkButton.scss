@@ -1,0 +1,17 @@
+$govuk-assets-path: '~govuk-frontend/govuk/assets/';
+
+@import '~govuk-frontend/govuk/settings/all';
+@import '~govuk-frontend/govuk/helpers/all';
+@import '~govuk-frontend/govuk/tools/all';
+
+.link-button {
+  @include govuk-link-common;
+  @include govuk-link-style-default;
+  font: inherit;
+  color: $govuk-link-colour;
+  background: none;
+  box-shadow: none;
+  border: none;
+  text-decoration: underline;
+  cursor: pointer;
+}

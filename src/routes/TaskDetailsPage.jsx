@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useHistory } from 'react-router-dom';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
 import axios from 'axios';
@@ -7,13 +7,15 @@ import { get } from 'lodash';
 
 import config from '../config';
 import { LONG_DATE_FORMAT } from '../constants';
+import { useKeycloak } from '../utils/keycloak';
+import useAxiosInstance from '../utils/axiosInstance';
 import Accordion from '../govuk/Accordion';
 import Button from '../govuk/Button';
-import useAxiosInstance from '../utils/axiosInstance';
 import LoadingSpinner from '../forms/LoadingSpinner';
+import ErrorSummary from '../govuk/ErrorSummary';
+import LinkButton from '../govuk/LinkButton';
 
 import './__assets__/TaskDetailsPage.scss';
-import ErrorSummary from '../govuk/ErrorSummary';
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
@@ -21,6 +23,10 @@ const TaskDetailsPage = () => {
   const camundaClient = useAxiosInstance(config.camundaApiUrl);
   const [taskVersions, setTaskVersions] = useState([]);
   const [isLoading, setLoading] = useState(true);
+  const [isAssignmentInProgress, setAssignmentProgress] = useState(false);
+  const keycloak = useKeycloak();
+  const currentUser = keycloak.tokenParsed.email;
+  const history = useHistory();
 
   useEffect(() => {
     const source = axios.CancelToken.source();
@@ -44,7 +50,10 @@ const TaskDetailsPage = () => {
               acc[camundaVar.name] = JSON.parse(camundaVar.value);
               return acc;
             }, {});
-          setTaskVersions([parsedTask]);
+          setTaskVersions([{
+            ...taskResponse.data,
+            ...parsedTask,
+          }]);
         } catch (e) {
           setError(e.message);
           setTaskVersions([]);
@@ -68,6 +77,66 @@ const TaskDetailsPage = () => {
     return null;
   }
 
+  const { assignee } = taskVersions[0];
+
+  const handleClaim = async () => {
+    try {
+      setAssignmentProgress(true);
+      await camundaClient.post(`task/${taskId}/claim`, {
+        userId: currentUser,
+      });
+      history.go(0);
+    } catch (e) {
+      setError(e.message);
+      setAssignmentProgress(false);
+    }
+  };
+
+  const handleUnclaim = async () => {
+    try {
+      setAssignmentProgress(true);
+      await camundaClient.post(`task/${taskId}/unclaim`, {
+        userId: currentUser,
+      });
+      history.go(0);
+    } catch (e) {
+      setError(e.message);
+      setAssignmentProgress(false);
+    }
+  };
+
+  const getAssignee = () => {
+    if (!assignee) {
+      return 'Unassigned';
+    }
+    if (assignee === currentUser) {
+      return 'Assigned to you';
+    }
+    return assignee;
+  };
+
+  const ClaimButton = (props) => (
+    <span className="govuk-!-margin-left-3">
+      {isAssignmentInProgress ? 'Please wait...' : (
+        <LinkButton
+          type="button"
+          {...props}
+        />
+      )}
+    </span>
+  );
+
+  const getClaimButton = () => {
+    if (assignee === null || assignee !== currentUser) {
+      return (
+        <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
+      );
+    }
+    return (
+      <ClaimButton onClick={handleUnclaim}>Unclaim</ClaimButton>
+    );
+  };
+
   return (
     <>
       {error && (
@@ -82,7 +151,11 @@ const TaskDetailsPage = () => {
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-third">
           <span className="govuk-caption-xl">{taskVersions[0].taskSummary?.businessKey}</span>
-          <h1 className="govuk-heading-xl">Task details</h1>
+          <h1 className="govuk-heading-xl govuk-!-margin-bottom-0">Task details</h1>
+          <p className="govuk-body">
+            {getAssignee()}
+            {getClaimButton()}
+          </p>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">
           <Button className="govuk-!-margin-right-1">Issue target</Button>
