@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useInterval } from 'react-use';
 import qs from 'qs';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
@@ -10,7 +11,6 @@ import { LONG_DATE_FORMAT, SHORT_DATE_FORMAT } from '../constants';
 import Tabs from '../govuk/Tabs';
 import Pagination from '../components/Pagination';
 import useAxiosInstance from '../utils/axiosInstance';
-import useInterval from '../utils/useInterval';
 import LoadingSpinner from '../forms/LoadingSpinner';
 
 import './__assets__/TaskListPage.scss';
@@ -27,6 +27,7 @@ const TaskListPage = () => {
   const offset = index * itemsPerPage;
   const limit = (index + 1) * itemsPerPage;
   const axiosInstance = useAxiosInstance(config.camundaApiUrl);
+  const source = axios.CancelToken.source();
 
   const loadTasks = async () => {
     if (axiosInstance) {
@@ -60,7 +61,6 @@ const TaskListPage = () => {
 
   useEffect(() => {
     if (activePage > 0) {
-      const source = axios.CancelToken.source();
       loadTasks();
       return () => {
         source.cancel('Cancelling request');
@@ -69,7 +69,6 @@ const TaskListPage = () => {
   }, [activePage]);
 
   useInterval(() => {
-    const source = axios.CancelToken.source();
     setLoading(true);
     loadTasks();
     return () => {
