@@ -13,10 +13,12 @@ import useAxiosInstance from '../utils/axiosInstance';
 import LoadingSpinner from '../forms/LoadingSpinner';
 
 import './__assets__/TaskDetailsPage.scss';
+import ErrorSummary from '../govuk/ErrorSummary';
 
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
-  const axiosInstance = useAxiosInstance(config.camundaApiUrl);
+  const [error, setError] = useState(null);
+  const camundaClient = useAxiosInstance(config.camundaApiUrl);
   const [taskVersions, setTaskVersions] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
@@ -24,32 +26,27 @@ const TaskDetailsPage = () => {
     const source = axios.CancelToken.source();
 
     const loadTask = async () => {
-      if (axiosInstance) {
+      if (camundaClient) {
         try {
-          const response = await axiosInstance.get('/variable-instance', {
+          const taskResponse = await camundaClient.get(`/task/${taskId}`);
+          const variableInstanceResponse = await camundaClient.post('/variable-instance', {
+            processInstanceIdIn: [taskResponse.data.processInstanceId],
+          }, {
             params: {
               deserializeValues: false,
-              processInstanceIdIn: taskId,
             },
           });
 
-          const parsedItems = response.data.map(({ name, type, value }) => {
-            const parsedValue = type === 'Json' ? JSON.parse(value) : value;
-            return { name, value: parsedValue };
-          });
-          console.log(parsedItems);
-
           const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory'];
-          const parsedTask = response.data
+          const parsedTask = variableInstanceResponse.data
             .filter((t) => whitelistedCamundaVars.includes(t.name))
             .reduce((acc, camundaVar) => {
               acc[camundaVar.name] = JSON.parse(camundaVar.value);
               return acc;
             }, {});
-          console.log(parsedTask);
           setTaskVersions([parsedTask]);
         } catch (e) {
-          console.log(e);
+          setError(e.message);
           setTaskVersions([]);
         } finally {
           setLoading(false);
@@ -61,7 +58,7 @@ const TaskDetailsPage = () => {
     return () => {
       source.cancel('Cancelling request');
     };
-  }, [axiosInstance]);
+  }, [camundaClient]);
 
   if (isLoading) {
     return <LoadingSpinner><br /><br /><br /></LoadingSpinner>;
@@ -73,9 +70,18 @@ const TaskDetailsPage = () => {
 
   return (
     <>
+      {error && (
+        <ErrorSummary
+          title="There is a problem"
+          errorList={[
+            { children: error },
+          ]}
+        />
+      )}
+
       <div className="govuk-grid-row">
         <div className="govuk-grid-column-one-third">
-          <span className="govuk-caption-xl">{taskVersions[0].taskSummary.movementId}</span>
+          <span className="govuk-caption-xl">{taskVersions[0].taskSummary?.businessKey}</span>
           <h1 className="govuk-heading-xl">Task details</h1>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">
@@ -95,13 +101,13 @@ const TaskDetailsPage = () => {
               const versionNumber = taskVersions.length - index;
               const vehicle = get(task, 'vehicleHistory[0][0]vehicle', {});
               const trailer = get(taskSummary, 'trailers[0]', {});
-              const account = taskSummary.organisations.find(({ type }) => type === 'ORGACCOUNT');
-              const haulier = taskSummary.organisations.find(({ type }) => type === 'ORGHAULIER');
-              const driver = taskSummary.people.find(({ role }) => role === 'DRIVER');
-              const passengers = taskSummary.people.filter(({ role }) => role === 'PASSENGER');
-              const freight = taskSummary.freight;
-              const consignee = taskSummary.consignee;
-              const consignor = taskSummary.consignor;
+              const account = taskSummary?.organisations.find(({ type }) => type === 'ORGACCOUNT') || {};
+              const haulier = taskSummary?.organisations.find(({ type }) => type === 'ORGHAULIER') || {};
+              const driver = taskSummary?.people.find(({ role }) => role === 'DRIVER') || {};
+              const passengers = taskSummary?.people.filter(({ role }) => role === 'PASSENGER') || [];
+              const freight = taskSummary?.freight;
+              const consignee = taskSummary?.consignee;
+              const consignor = taskSummary?.consignor;
               const matchedRules = get(task, 'ruleHistory[0]', []);
               return (
                 {
@@ -114,7 +120,7 @@ const TaskDetailsPage = () => {
                       <div className="task-versions--right">
                         <ul className="govuk-list">
                           <li>{pluralise.withCount(0, '% change', '% changes', 'No changes')} in this version</li>
-                          <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">{taskSummary.matchedSelectors[0].priority}</strong> from version {versionNumber}</li>
+                          <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">{taskSummary?.matchedSelectors[0].priority}</strong> from version {versionNumber}</li>
                         </ul>
                       </div>
                     </>
@@ -297,11 +303,11 @@ const TaskDetailsPage = () => {
                       <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">Description of goods</dt>
-                          <dd className="govuk-summary-list__value">{freight.descriptionOfCargo}</dd>
+                          <dd className="govuk-summary-list__value">{freight?.descriptionOfCargo}</dd>
                         </div>
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">Is cargo hazardous?</dt>
-                          <dd className="govuk-summary-list__value">{freight.hazardousCargo === 'true' ? 'Yes' : 'No'}</dd>
+                          <dd className="govuk-summary-list__value">{freight?.hazardousCargo === 'true' ? 'Yes' : 'No'}</dd>
                         </div>
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">Weight of goods</dt>
@@ -334,7 +340,7 @@ const TaskDetailsPage = () => {
                         </div>
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">Date and time</dt>
-                          <dd className="govuk-summary-list__value">{moment(taskSummary.bookingDateTime).format(LONG_DATE_FORMAT)}</dd>
+                          <dd className="govuk-summary-list__value">{moment(taskSummary?.bookingDateTime).format(LONG_DATE_FORMAT)}</dd>
                         </div>
                         <div className="govuk-summary-list__row">
                           <dt className="govuk-summary-list__key">Country</dt>

@@ -5,6 +5,7 @@ import qs from 'qs';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
 import axios from 'axios';
+import _ from 'lodash';
 
 import config from '../config';
 import { LONG_DATE_FORMAT, SHORT_DATE_FORMAT } from '../constants';
@@ -12,40 +13,61 @@ import Tabs from '../govuk/Tabs';
 import Pagination from '../components/Pagination';
 import useAxiosInstance from '../utils/axiosInstance';
 import LoadingSpinner from '../forms/LoadingSpinner';
+import ErrorSummary from '../govuk/ErrorSummary';
 
 import './__assets__/TaskListPage.scss';
 
 const TaskListPage = () => {
   const [activePage, setActivePage] = useState(0);
   const [tasks, setTasks] = useState([]);
+  const [taskCount, setTaskCount] = useState(0);
   const [isLoading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const location = useLocation();
 
-  const itemsPerPage = 3;
-  const totalPages = Math.ceil(tasks.length / itemsPerPage);
+  const itemsPerPage = 10;
   const index = activePage - 1;
   const offset = index * itemsPerPage;
-  const limit = (index + 1) * itemsPerPage;
-  const axiosInstance = useAxiosInstance(config.camundaApiUrl);
+  const totalPages = Math.ceil(taskCount / itemsPerPage);
+  const camundaClient = useAxiosInstance(config.camundaApiUrl);
   const source = axios.CancelToken.source();
 
   const loadTasks = async () => {
-    if (axiosInstance) {
+    if (camundaClient) {
       try {
-        const response = await axiosInstance.get('/variable-instance', {
+        setLoading(true);
+        const [tasksResponse, taskCountResponse] = await Promise.all([
+          camundaClient.get('/task', {
+            params: {
+              firstResult: offset,
+              maxResults: itemsPerPage,
+            },
+          }),
+          camundaClient.get('/task/count'),
+        ]);
+
+        const processInstanceIds = _.uniq(tasksResponse.data.map(({ processInstanceId }) => processInstanceId));
+        const variableInstances = await camundaClient.post('/variable-instance', {
+          processInstanceIdIn: processInstanceIds,
+          variableName: 'taskSummary',
+        }, {
           params: {
-            variableName: 'taskSummary',
             deserializeValues: false,
-            firstResult: offset,
-            maxResults: limit,
           },
         });
-        const parsedTasks = response.data.map(({ processInstanceId, value }) => ({
-          processInstanceId,
-          ...JSON.parse(value),
-        }));
+
+        const parsedTasks = tasksResponse.data.map((task) => {
+          const taskSummaryVar = variableInstances.data.find((v) => task.processInstanceId === v.processInstanceId);
+          return {
+            ...(taskSummaryVar ? JSON.parse(taskSummaryVar.value) : {}),
+            ...task,
+          };
+        });
+
+        setTaskCount(taskCountResponse.data.count);
         setTasks(parsedTasks);
       } catch (e) {
+        setError(e.message);
         setTasks([]);
       } finally {
         setLoading(false);
@@ -80,6 +102,15 @@ const TaskListPage = () => {
     <>
       <h1 className="govuk-heading-xl">Task management</h1>
 
+      {error && (
+        <ErrorSummary
+          title="There is a problem"
+          errorList={[
+            { children: error },
+          ]}
+        />
+      )}
+
       <Tabs
         title="Title"
         id="tasks"
@@ -93,11 +124,13 @@ const TaskListPage = () => {
 
                 {isLoading && <LoadingSpinner><br /><br /><br /></LoadingSpinner>}
 
-                {tasks.map((task) => {
-                  const driver = task.people.find(({ role }) => role === 'DRIVER');
-                  const passengers = task.people.filter(({ role }) => role === 'PASSENGER');
-                  const haulier = task.organisations.find(({ type }) => type === 'ORGHAULIER');
-                  const account = task.organisations.find(({ type }) => type === 'ORGACCOUNT');
+                {!isLoading && tasks.map((task) => {
+                  const driver = task.people?.find(({ role }) => role === 'DRIVER');
+                  const passengers = task.people?.filter(({ role }) => role === 'PASSENGER') || [];
+                  const haulier = task.organisations?.find(({ type }) => type === 'ORGHAULIER');
+                  const account = task.organisations?.find(({ type }) => type === 'ORGACCOUNT');
+                  const vehicle = task.vehicles?.[0];
+                  const trailer = task.trailers?.[0];
 
                   return (
                     <section className="task-list--item" key={task.processInstanceId}>
@@ -105,9 +138,9 @@ const TaskListPage = () => {
                         <div className="govuk-grid-column-three-quarters">
                           <h3 className="govuk-heading-m task-heading">
                             <Link
-                              className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold task-view"
-                              to={`/tasks/${task.processInstanceId}`}
-                            >{task.movementId}
+                              className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold"
+                              to={`/tasks/${task.id}`}
+                            >{task.businessKey || task.id}
                             </Link>
                           </h3>
                           <h4 className="govuk-heading-m task-sub-heading govuk-!-font-weight-regular">
@@ -115,7 +148,7 @@ const TaskListPage = () => {
                           </h4>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
-                          <a href="#claim" className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold govuk-!-font-size-19 task-view">
+                          <a href="#claim" className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold govuk-!-font-size-19">
                             Claim task
                           </a>
                         </div>
@@ -139,11 +172,15 @@ const TaskListPage = () => {
                             Driver details
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
-                            <span className="govuk-!-font-weight-bold">
-                              {driver?.fullName}
-                            </span>, DOB: {moment(driver?.dateOfBirth).format(SHORT_DATE_FORMAT)},
-                            {' '}
-                            {pluralise.withCount(task.aggregateDriverTrips || '?', '% trip', '% trips')}
+                            {driver ? (
+                              <>
+                                <span className="govuk-!-font-weight-bold">
+                                  {driver?.fullName || 'Unknown'}
+                                </span>, DOB: {moment(driver?.dateOfBirth).format(SHORT_DATE_FORMAT)},
+                                {' '}
+                                {pluralise.withCount(task.aggregateDriverTrips || '?', '% trip', '% trips')}
+                              </>
+                            ) : (<span className="govuk-!-font-weight-bold">Unknown</span>)}
                           </p>
                           <h3 className="govuk-heading-s govuk-!-margin-bottom-1 govuk-!-font-size-16 govuk-!-font-weight-regular">
                             Passenger details
@@ -157,21 +194,29 @@ const TaskListPage = () => {
                             Vehicle details
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
-                            <span className="govuk-!-font-weight-bold">
-                              {task.vehicles[0].registrationNumber}
-                            </span>, {task.vehicles[0].description || 'No description'},
-                            {' '}
-                            {pluralise.withCount(task.aggregateVehicleTrips || 0, '% trip', '% trips')}
+                            {vehicle ? (
+                              <>
+                                <span className="govuk-!-font-weight-bold">
+                                  {vehicle.registrationNumber || 'Unknown registration number'}
+                                </span>, {vehicle.description || 'No description'},
+                                {' '}
+                                {pluralise.withCount(task.aggregateVehicleTrips || 0, '% trip', '% trips')}
+                              </>
+                            ) : (<span className="govuk-!-font-weight-bold">No vehicle</span>)}
                           </p>
                           <h3 className="govuk-heading-s govuk-!-margin-bottom-1 govuk-!-font-size-16 govuk-!-font-weight-regular">
                             Trailer details
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
-                            <span className="govuk-!-font-weight-bold">
-                              {task.trailers[0].registrationNumber}
-                            </span>, {task.trailers[0].description || 'No description'},
-                            {' '}
-                            {pluralise.withCount(task.aggregateTrailerTrips || 0, '% trip', '% trips')}
+                            {trailer ? (
+                              <>
+                                <span className="govuk-!-font-weight-bold">
+                                  {trailer.registrationNumber || 'Unknown registration number'}
+                                </span>, {trailer.description || 'No description'},
+                                {' '}
+                                {pluralise.withCount(task.aggregateTrailerTrips || 0, '% trip', '% trips')}
+                              </>
+                            ) : (<span className="govuk-!-font-weight-bold">No trailer</span>)}
                           </p>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
@@ -179,15 +224,18 @@ const TaskListPage = () => {
                             Haulier details
                           </h3>
                           <p className="govuk-body-s govuk-!-font-weight-bold govuk-!-margin-bottom-1">
-                            {haulier.name}
+                            {haulier?.name || 'Unknown'}
                           </p>
                           <h3 className="govuk-heading-s govuk-!-margin-bottom-1 govuk-!-font-size-16 govuk-!-font-weight-regular">
                             Account details
                           </h3>
                           <p className="govuk-body-s govuk-!-margin-bottom-1">
                             <span className="govuk-!-font-weight-bold">
-                              {account.name}
-                            </span>, Booked on {moment(task.bookingDateTime).format(SHORT_DATE_FORMAT)}
+                              {account?.name || 'Unknown'}
+                            </span>
+                            {task.bookingDateTime && (
+                              <>, Booked on {moment(task.bookingDateTime).format(SHORT_DATE_FORMAT)}</>
+                            )}
                           </p>
                         </div>
                         <div className="govuk-grid-column-one-quarter">
@@ -195,7 +243,7 @@ const TaskListPage = () => {
                             Goods details
                           </h3>
                           <p className="govuk-body-s govuk-!-font-weight-bold">
-                            {task.freight.descriptionOfCargo}
+                            {task.freight?.descriptionOfCargo || 'Unknown'}
                           </p>
                         </div>
                       </div>
@@ -204,11 +252,11 @@ const TaskListPage = () => {
                           <ul className="govuk-list task-labels govuk-!-margin-top-2 govuk-!-margin-bottom-0">
                             <li className="task-labels-item">
                               <strong className="govuk-tag govuk-tag--positiveTarget">
-                                {task.matchedSelectors?.[0]?.priority}
+                                {task.matchedSelectors?.[0]?.priority || 'Unknown'}
                               </strong>
                             </li>
                             <li className="task-labels-item">
-                              {task.matchedSelectors?.[0]?.threatType}
+                              {task.matchedSelectors?.[0]?.threatType || 'Unknown'}
                             </li>
                           </ul>
                         </div>
@@ -218,7 +266,7 @@ const TaskListPage = () => {
                 })}
 
                 <Pagination
-                  totalItems={tasks.length}
+                  totalItems={taskCount}
                   itemsPerPage={itemsPerPage}
                   activePage={activePage}
                   totalPages={totalPages}
