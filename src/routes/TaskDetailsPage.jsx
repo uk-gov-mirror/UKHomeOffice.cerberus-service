@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
 import axios from 'axios';
@@ -15,7 +15,7 @@ import Accordion from '../govuk/Accordion';
 import Button from '../govuk/Button';
 import LoadingSpinner from '../forms/LoadingSpinner';
 import ErrorSummary from '../govuk/ErrorSummary';
-import LinkButton from '../govuk/LinkButton';
+import ClaimButton from '../components/ClaimTaskButton';
 
 import './__assets__/TaskDetailsPage.scss';
 
@@ -28,10 +28,8 @@ const TaskDetailsPage = () => {
   const formApiClient = useAxiosInstance(config.formApiUrl);
   const [taskVersions, setTaskVersions] = useState([]);
   const [isLoading, setLoading] = useState(true);
-  const [isAssignmentInProgress, setAssignmentProgress] = useState(false);
   const keycloak = useKeycloak();
   const currentUser = keycloak.tokenParsed.email;
-  const history = useHistory();
   const [form, setForm] = useState();
   const [isFormSubmitting, setIsFormSubmitting] = useState();
   const source = axios.CancelToken.source();
@@ -102,32 +100,6 @@ const TaskDetailsPage = () => {
 
   const { assignee } = taskVersions[0];
 
-  const handleClaim = async () => {
-    try {
-      setAssignmentProgress(true);
-      await camundaClient.post(`task/${taskId}/claim`, {
-        userId: currentUser,
-      });
-      history.go(0);
-    } catch (e) {
-      setError(e.message);
-      setAssignmentProgress(false);
-    }
-  };
-
-  const handleUnclaim = async () => {
-    try {
-      setAssignmentProgress(true);
-      await camundaClient.post(`task/${taskId}/unclaim`, {
-        userId: currentUser,
-      });
-      history.go(0);
-    } catch (e) {
-      setError(e.message);
-      setAssignmentProgress(false);
-    }
-  };
-
   const getAssignee = () => {
     if (!assignee) {
       return 'Unassigned';
@@ -136,28 +108,6 @@ const TaskDetailsPage = () => {
       return 'Assigned to you';
     }
     return assignee;
-  };
-
-  const ClaimButton = (props) => (
-    <span className="govuk-!-margin-left-3">
-      {isAssignmentInProgress ? 'Please wait...' : (
-        <LinkButton
-          type="button"
-          {...props}
-        />
-      )}
-    </span>
-  );
-
-  const getClaimButton = () => {
-    if (assignee === null || assignee !== currentUser) {
-      return (
-        <ClaimButton onClick={handleClaim}>Claim</ClaimButton>
-      );
-    }
-    return (
-      <ClaimButton onClick={handleUnclaim}>Unclaim</ClaimButton>
-    );
   };
 
   const handleSubmitNote = async ({ data: { note } }) => {
@@ -190,7 +140,7 @@ const TaskDetailsPage = () => {
           <h1 className="govuk-heading-xl govuk-!-margin-bottom-0">Task details</h1>
           <p className="govuk-body">
             {getAssignee()}
-            {getClaimButton()}
+            <ClaimButton assignee={assignee} taskId={taskId} setError={setError} />
           </p>
         </div>
         <div className="govuk-grid-column-two-thirds task-actions--buttons">
