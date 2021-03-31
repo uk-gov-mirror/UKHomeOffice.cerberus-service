@@ -3,7 +3,7 @@ import { useDeepCompareEffect } from 'react-use';
 import classNames from 'classnames';
 
 const ErrorSummary = ({
-  title, description, className, errorList = [], onHandleErrorClick, ...attributes
+  title, description, className, errorList = [], onHandleErrorClick = () => {}, ...attributes
 }) => {
   const ref = useRef();
 

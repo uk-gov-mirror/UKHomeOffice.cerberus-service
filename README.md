@@ -16,22 +16,30 @@ Cerberus frontend service for cerberus-api
 
 **1. Clone this repo**
 
-## Native development
+### Native development
 **2. Install dependencies**
 ```sh
 $ npm install
 ```
-**3. Build development bundle** *(optional)*
+**3. Add environment variables (you don't need to use `export` on OSX)**
+```sh
+$ export KEYCLOAK_AUTH_URL=https://your.sso.com/auth
+$ export KEYCLOAK_CLIENT_ID=your-client-id
+$ export KEYCLOAK_REALM=realm
+$ export FORM_API_URL=https://form-api.example.com/
+$ export REFDATA_API_URL=https://refdata-api.example.com/
+$ export CERBERUS_API_URL=https://cerberus-api.example.com/
+```
+**4. Build development bundle** *(optional)*
 ```sh
 $ npm run build:dev
 ```
-**4. Start the application** *(optional)*
+**5. Start the application** *(optional)*
 ```sh
 $ npm start
 ```
 
-
-## Development with docker
+### Development with docker
 **2. Build the application Docker container**
 ```sh
 docker build -t cerberus-service .
@@ -39,9 +47,12 @@ docker build -t cerberus-service .
 **3. Run the resulting Docker container**
 ```sh
 docker run --name cerberus-service -p 8080:8080 \
-  --env  KEYCLOAK_AUTH_URL=https://your.sso.com/auth \
+  --env KEYCLOAK_AUTH_URL=https://your.sso.com/auth \
   --env KEYCLOAK_CLIENT_ID=your-client-id \
   --env KEYCLOAK_REALM=realm \
+  --env FORM_API_URL=https://form-api.example.com \
+  --env REFDATA_API_URL=https://refdata-api.example.com \
+  --env CERBERUS_API_URL=https://cerberus-api.example.com \
   cerberus-service
 ```
 
