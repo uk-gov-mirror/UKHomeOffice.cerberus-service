@@ -4,6 +4,8 @@ import moment from 'moment';
 import * as pluralise from 'pluralise';
 import axios from 'axios';
 import { get } from 'lodash';
+import { Formio, Form } from 'react-formio';
+import gds from '@digitalpatterns/formio-gds-template/lib';
 
 import config from '../config';
 import { LONG_DATE_FORMAT } from '../constants';
@@ -17,20 +19,24 @@ import LinkButton from '../govuk/LinkButton';
 
 import './__assets__/TaskDetailsPage.scss';
 
+Formio.use(gds);
+
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
   const [error, setError] = useState(null);
   const camundaClient = useAxiosInstance(config.camundaApiUrl);
+  const formApiClient = useAxiosInstance(config.formApiUrl);
   const [taskVersions, setTaskVersions] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const [isAssignmentInProgress, setAssignmentProgress] = useState(false);
   const keycloak = useKeycloak();
   const currentUser = keycloak.tokenParsed.email;
   const history = useHistory();
+  const [form, setForm] = useState();
+  const [isFormSubmitting, setIsFormSubmitting] = useState();
+  const source = axios.CancelToken.source();
 
   useEffect(() => {
-    const source = axios.CancelToken.source();
-
     const loadTask = async () => {
       if (camundaClient) {
         try {
@@ -68,6 +74,23 @@ const TaskDetailsPage = () => {
       source.cancel('Cancelling request');
     };
   }, [camundaClient]);
+
+  useEffect(() => {
+    const loadForm = async () => {
+      if (formApiClient) {
+        try {
+          const { data } = await formApiClient.get('/form/name/noteCerberus');
+          setForm(data);
+        } catch (e) {
+          setError(e.message);
+        }
+      }
+    };
+    loadForm();
+    return () => {
+      source.cancel('Cancelling request');
+    };
+  }, [formApiClient]);
 
   if (isLoading) {
     return <LoadingSpinner><br /><br /><br /></LoadingSpinner>;
@@ -135,6 +158,19 @@ const TaskDetailsPage = () => {
     return (
       <ClaimButton onClick={handleUnclaim}>Unclaim</ClaimButton>
     );
+  };
+
+  const handleSubmitNote = async ({ data: { note } }) => {
+    try {
+      setIsFormSubmitting(true);
+      await camundaClient.post(`/task/${taskId}/comment/create`, {
+        message: note,
+      });
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setIsFormSubmitting(false);
+    }
   };
 
   return (
@@ -502,7 +538,15 @@ const TaskDetailsPage = () => {
         <div className="govuk-grid-column-one-third">
           <h2 className="govuk-heading-m">Notes</h2>
 
-          <p>TODO</p>
+          {isFormSubmitting ? <LoadingSpinner /> : (
+            <Form
+              form={form}
+              onSubmit={handleSubmitNote}
+              options={{
+                noAlerts: true,
+              }}
+            />
+          )}
 
           <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
 
