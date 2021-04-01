@@ -2,7 +2,7 @@
 /// <reference path="../support/index.d.ts" />
 
 describe('Verify Task Management Page', () => {
-  const MAX_TASK_PER_PAGE = 3;
+  const MAX_TASK_PER_PAGE = 10;
 
   beforeEach(() => {
     cy.fixture('users/cypressuser@lodev.xyz.json').then((user) => {
@@ -33,15 +33,21 @@ describe('Verify Task Management Page', () => {
   });
 
   it('Should navigate to task details page', () => {
+    cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
+
     cy.navigation('Tasks');
 
-    cy.get('.task-heading a.task-view').eq(0).invoke('text').then((text) => {
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.get('.task-heading a').eq(0).invoke('text').then((text) => {
       cy.contains(text).click();
       cy.get('.govuk-caption-xl').should('have.text', text);
     });
   });
 
-  it.skip('Should hide first and prev buttons on first page', () => {
+  it('Should hide first and prev buttons on first page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').then(($items) => {
@@ -49,10 +55,10 @@ describe('Verify Task Management Page', () => {
       expect(texts).not.to.contain(['First', 'Previous']);
     });
 
-    cy.get('.pagination--summary').should('contain.text', 'Showing 1 - 3');
+    cy.get('.pagination--summary').should('contain.text', `Showing 1 - ${MAX_TASK_PER_PAGE}`);
   });
 
-  it.skip('Should hide last and next buttons on last page', () => {
+  it('Should hide last and next buttons on last page', () => {
     cy.navigation('Tasks');
 
     cy.get('.pagination--list a').last().click();
@@ -63,7 +69,7 @@ describe('Verify Task Management Page', () => {
     });
   });
 
-  it.skip('Should maintain the page links count', () => {
+  it('Should maintain the page links count', () => {
     cy.navigation('Tasks');
 
     cy.get('.task-list--item').should('have.length', MAX_TASK_PER_PAGE);
