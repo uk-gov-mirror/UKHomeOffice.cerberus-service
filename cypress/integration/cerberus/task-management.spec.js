@@ -74,6 +74,33 @@ describe('Verify Task Management Page', () => {
     });
   });
 
+  it('Should verify refresh task list page', () => {
+    cy.clock();
+    cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
+
+    cy.navigation('Tasks');
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.tick(60000);
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.get('.pagination--list a').eq(1).click();
+
+    cy.tick(60000);
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.url().should('contain', 'page=2');
+  });
+
   after(() => {
     cy.contains('Sign out').click();
     cy.get('#kc-page-title').should('contain.text', 'Log In');
