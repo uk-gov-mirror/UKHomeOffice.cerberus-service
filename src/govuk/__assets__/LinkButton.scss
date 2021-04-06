@@ -7,7 +7,8 @@ $govuk-assets-path: '~govuk-frontend/govuk/assets/';
 .link-button {
   @include govuk-link-common;
   @include govuk-link-style-default;
-  font: inherit;
+  font-size: inherit;
+  line-height: inherit;
   color: $govuk-link-colour;
   background: none;
   box-shadow: none;

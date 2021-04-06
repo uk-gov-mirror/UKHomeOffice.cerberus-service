@@ -16,6 +16,7 @@ import LoadingSpinner from '../forms/LoadingSpinner';
 import ErrorSummary from '../govuk/ErrorSummary';
 
 import './__assets__/TaskListPage.scss';
+import ClaimButton from '../components/ClaimTaskButton';
 
 const TaskListPage = () => {
   const [activePage, setActivePage] = useState(0);
@@ -147,10 +148,13 @@ const TaskListPage = () => {
                             {task.movementStatus}
                           </h4>
                         </div>
-                        <div className="govuk-grid-column-one-quarter">
-                          <a href="#claim" className="govuk-link govuk-link--no-visited-state govuk-!-font-weight-bold govuk-!-font-size-19">
-                            Claim task
-                          </a>
+                        <div className="govuk-grid-column-one-quarter govuk-!-font-size-19">
+                          <ClaimButton
+                            className="govuk-!-font-weight-bold"
+                            assignee={task.assignee}
+                            taskId={task.id}
+                            setError={setError}
+                          />
                         </div>
                       </div>
                       <div className="govuk-grid-row">
