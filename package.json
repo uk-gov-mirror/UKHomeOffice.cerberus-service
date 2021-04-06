@@ -9,6 +9,8 @@
     "lint": "eslint -f table --ext=js,jsx",
     "start": "webpack serve --watch --mode=development",
     "test": "jest",
+    "cypress:test:local": "cypress run",
+    "cypress:test:dev": "cypress run --env configFile=dev",
     "cypress:runner": "cypress open"
   },
   "repository": {
@@ -38,7 +40,8 @@
     "react-formio": "^4.3.0",
     "react-router-dom": "^5.2.0",
     "react-select": "^4.0.2",
-    "react-use": "^15.3.8"
+    "react-use": "^15.3.8",
+    "fs-extra": "^9.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.12.10",

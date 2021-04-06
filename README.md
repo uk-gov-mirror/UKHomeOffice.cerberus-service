@@ -11,6 +11,7 @@ Cerberus frontend service for cerberus-api
 * [Development with docker](#development-with-docker)
 *  [Tests in native development](#tests-in-native-development)
 * [Linter in native development](#linter-in-native-development)
+* [E2E tests in native development](#e2e-tests-in-native-development)
 
 ## Getting started
 
@@ -73,13 +74,48 @@ Setup your environment as described in [Native development](#native-development)
 ```sh
 npm run lint -- <directory>
 ```
-### Running UI tests (cypress tests)
+
+## E2E tests in native development
+
+Setup your environment as described in [Native development](#native-development)
+
 There are two ways to run cypress tests, using the cypress test runner or running cypress tests using the command line.
-(You will need the cerberus-service application running before triggering the Cypress tests)
+
 By default tests run against local environment.
 
-#### Running Cypress Test Runner
+**NOTE:** You will need, the [cerberus-service](https://github.com/UKHomeOffice/cerberus-service) application, to be running before triggering Cypress.
+
+#### Running cypress test runner
+
+Running all tests
 ```sh
 npm run cypress:runner
 ```
+
+Running all tests using environment settings from a configuration file
+```sh
+npm run cypress:runner -- --env configFile=dev
+```
 Once TestRunner launched, click on the interested spec inside folder cypress/integration/cerberus
+
+#### Running cypress tests using the command line
+
+Running all tests on local Environment, (It executes tests headless mode on Electron Browser)
+```sh
+npm run cypress:test:local
+```
+
+Running all tests on Development Environment, (It executes tests headless mode on Electron Browser)
+```sh
+npm run cypress:test:dev
+```
+
+Running a specific test
+```sh
+npm run cypress:test:local -- --spec cypress/integration/cerberus/tasks.spec.js
+```
+
+Running specific test with chrome browser
+```sh
+npm run cypress:test:local -- --browser chrome --spec cypress/integration/cerberus/task-management.spec.js
+```
