@@ -2,7 +2,7 @@
 /// <reference path="../support/index.d.ts" />
 
 describe('Verify Task Management Page', () => {
-  const MAX_TASK_PER_PAGE = 3;
+  const MAX_TASK_PER_PAGE = 10;
 
   beforeEach(() => {
     cy.fixture('users/cypressuser@lodev.xyz.json').then((user) => {
@@ -33,11 +33,17 @@ describe('Verify Task Management Page', () => {
   });
 
   it('Should navigate to task details page', () => {
+    cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
+
     cy.navigation('Tasks');
 
-    cy.get('.task-heading a.task-view').eq(0).invoke('text').then((text) => {
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.get('.task-heading a').eq(0).invoke('text').then((text) => {
       cy.contains(text).click();
-      cy.url().should('include', text);
+      cy.get('.govuk-caption-xl').should('have.text', text);
     });
   });
 
@@ -49,7 +55,7 @@ describe('Verify Task Management Page', () => {
       expect(texts).not.to.contain(['First', 'Previous']);
     });
 
-    cy.get('.pagination--summary').should('contain.text', 'Showing 1 - 3');
+    cy.get('.pagination--summary').should('contain.text', `Showing 1 - ${MAX_TASK_PER_PAGE}`);
   });
 
   it('Should hide last and next buttons on last page', () => {
@@ -72,6 +78,33 @@ describe('Verify Task Management Page', () => {
       cy.wrap(item).click();
       cy.get('.task-list--item').its('length').should('be.lte', MAX_TASK_PER_PAGE);
     });
+  });
+
+  it('Should verify refresh task list page', () => {
+    cy.clock();
+    cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
+
+    cy.navigation('Tasks');
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.tick(60000);
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.get('.pagination--list a').eq(1).click();
+
+    cy.tick(60000);
+
+    cy.wait('@tasks').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+    });
+
+    cy.url().should('contain', 'page=2');
   });
 
   after(() => {
