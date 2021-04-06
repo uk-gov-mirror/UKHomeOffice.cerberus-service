@@ -124,8 +124,8 @@ const TaskDetailsPage = () => {
   };
 
   const renderForm = () => {
-    const isTaskOwner = taskVersions.some((task) => task.assignee === currentUser);
-    if (isTaskOwner) {
+    const isTaskAssignee = taskVersions.some((task) => task.assignee === currentUser);
+    if (isTaskAssignee) {
       if (isFormSubmitting) {
         return <LoadingSpinner />;
       }
