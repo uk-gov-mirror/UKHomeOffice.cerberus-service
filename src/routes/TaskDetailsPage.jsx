@@ -123,6 +123,27 @@ const TaskDetailsPage = () => {
     }
   };
 
+  const renderForm = () => {
+    const isTaskAssignee = taskVersions.some((task) => task.assignee === currentUser);
+    if (isTaskAssignee) {
+      return (
+        <>
+          <h2 className="govuk-heading-m">Notes</h2>
+          {isFormSubmitting ? <LoadingSpinner /> : (
+            <Form
+              form={form}
+              onSubmit={handleSubmitNote}
+              options={{
+                noAlerts: true,
+              }}
+            />
+          )}
+        </>
+      );
+    }
+    return null;
+  };
+
   return (
     <>
       {error && (
@@ -486,17 +507,8 @@ const TaskDetailsPage = () => {
           />
         </div>
         <div className="govuk-grid-column-one-third">
-          <h2 className="govuk-heading-m">Notes</h2>
 
-          {isFormSubmitting ? <LoadingSpinner /> : (
-            <Form
-              form={form}
-              onSubmit={handleSubmitNote}
-              options={{
-                noAlerts: true,
-              }}
-            />
-          )}
+          {renderForm()}
 
           <hr className="govuk-section-break govuk-section-break--m govuk-section-break--visible" />
 
