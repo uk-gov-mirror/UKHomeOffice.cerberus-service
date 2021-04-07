@@ -74,6 +74,8 @@ module.exports = {
         'cypress/no-unnecessary-waiting': 'off',
         'jest/valid-expect': 'off',
         'jest/valid-expect-in-promise': 'off',
+        'jest/no-standalone-expect': 'off',
+        'no-return-assign': 'off',
       },
     },
   ],
