@@ -1,7 +1,7 @@
 /// <reference types="Cypress"/>
 /// <reference path="../support/index.d.ts" />
 
-describe('Verify Task Management Page', () => {
+describe('Render tasks from Camunda and manage them on task management and details Page', () => {
   const MAX_TASK_PER_PAGE = 10;
 
   beforeEach(() => {
@@ -33,14 +33,7 @@ describe('Verify Task Management Page', () => {
   });
 
   it('Should navigate to task details page', () => {
-    cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
-
-    cy.navigation('Tasks');
-
-    cy.wait('@tasks').then(({ response }) => {
-      expect(response.statusCode).to.equal(200);
-    });
-
+    cy.waitForTaskManagementPage();
     cy.get('.task-heading a').eq(0).invoke('text').then((text) => {
       cy.contains(text).click();
       cy.get('.govuk-caption-xl').should('have.text', text);
@@ -81,14 +74,8 @@ describe('Verify Task Management Page', () => {
   });
 
   it('Should verify refresh task list page', () => {
-    cy.clock();
     cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
-
-    cy.navigation('Tasks');
-
-    cy.wait('@tasks').then(({ response }) => {
-      expect(response.statusCode).to.equal(200);
-    });
+    cy.clock();
 
     cy.tick(60000);
 
@@ -105,6 +92,61 @@ describe('Verify Task Management Page', () => {
     });
 
     cy.url().should('contain', 'page=2');
+  });
+
+  it('Should verify notes added for the tasks', () => {
+    const taskNotes = 'Add notes for testing & check it stored';
+    cy.intercept('POST', '/camunda/task/*/comment/create').as('notes');
+    cy.intercept('GET', 'camunda/task/*').as('tasksDetails');
+
+    cy.waitForTaskManagementPage();
+
+    cy.getUnassignedTasks().then((tasks) => {
+      const taskId = tasks.map(((item) => item.id));
+      expect(taskId.length).to.not.equal(0);
+      cy.window().then((win) => win.location.href = `/tasks/${taskId[0]}`);
+      cy.wait('@tasksDetails').then(({ response }) => {
+        expect(response.statusCode).to.equal(200);
+      });
+    });
+
+    cy.get('.govuk-heading-xl').should('have.text', 'Task details');
+
+    cy.get('.link-button').focus().should('have.text', 'Claim').focused()
+      .click();
+
+    cy.get('.formio-component-note textarea')
+      .should('be.visible')
+      .type(taskNotes, { force: true });
+
+    cy.get('.formio-component-submit button').click();
+
+    cy.wait('@notes').then(({ response }) => {
+      expect(response.statusCode).to.equal(200);
+      expect(response.body.message).to.contain(taskNotes);
+      cy.getTaskNotes(response.body.taskId).then((message) => {
+        expect(message).to.equal(taskNotes);
+      });
+    });
+  });
+
+  it('Should not show Notes for the tasks which is not assigned', () => {
+    cy.intercept('GET', 'camunda/task/*').as('tasksDetails');
+
+    cy.waitForTaskManagementPage();
+
+    cy.getAssignedTasks().then((tasks) => {
+      const taskId = tasks.map(((item) => item.id));
+      expect(taskId.length).to.not.equal(0);
+      cy.window().then((win) => win.location.href = `/tasks/${taskId[0]}`);
+      cy.wait('@tasksDetails').then(({ response }) => {
+        expect(response.statusCode).to.equal(200);
+      });
+    });
+
+    cy.get('.govuk-heading-xl').should('have.text', 'Task details');
+
+    cy.get('.formio-component-note textarea').should('not.exist');
   });
 
   after(() => {

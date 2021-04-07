@@ -1,11 +1,11 @@
-describe('Sign-in to cerberus UI', () => {
+describe('Log-in to cerberus UI', () => {
   beforeEach(() => {
     cy.fixture('users/cypressuser@lodev.xyz.json').then((user) => {
       cy.login(user.username);
     });
   });
 
-  it('Should Sign-in Successfully', () => {
+  it('Should Log-in Successfully into cerberus UI', () => {
     cy.url().should('include', '/tasks');
 
     cy.get('.govuk-heading-xl').should('contain.text', 'Task management');
