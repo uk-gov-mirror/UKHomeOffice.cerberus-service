@@ -21,12 +21,17 @@ import './__assets__/TaskDetailsPage.scss';
 
 Formio.use(gds);
 
+// See Camunda docs for all operation types: https://docs.camunda.org/javadoc/camunda-bpm-platform/7.7/org/camunda/bpm/engine/history/UserOperationLogEntry.html
+const OPERATION_TYPE_CLAIM = 'Claim';
+const OPERATION_TYPE_ASSIGN = 'Assign';
+
 const TaskDetailsPage = () => {
   const { taskId } = useParams();
   const [error, setError] = useState(null);
   const camundaClient = useAxiosInstance(config.camundaApiUrl);
   const formApiClient = useAxiosInstance(config.formApiUrl);
   const [taskVersions, setTaskVersions] = useState([]);
+  const [activityLog, setActivityLog] = useState([]);
   const [isLoading, setLoading] = useState(true);
   const keycloak = useKeycloak();
   const currentUser = keycloak.tokenParsed.email;
@@ -39,16 +44,48 @@ const TaskDetailsPage = () => {
       if (camundaClient) {
         try {
           const taskResponse = await camundaClient.get(`/task/${taskId}`);
-          const variableInstanceResponse = await camundaClient.post('/variable-instance', {
-            processInstanceIdIn: [taskResponse.data.processInstanceId],
-          }, {
-            params: {
-              deserializeValues: false,
-            },
+          const processInstanceId = taskResponse.data.processInstanceId;
+
+          const [variableInstanceResponse, operationsHistoryResponse, taskHistoryResponse] = await Promise.all([
+            camundaClient.get(
+              '/variable-instance',
+              { params: { processInstanceIdIn: processInstanceId, deserializeValues: false } },
+            ),
+            camundaClient.get(
+              '/history/user-operation',
+              { params: { processInstanceId, deserializeValues: false } },
+            ),
+            camundaClient.get(
+              '/history/task',
+              { params: { processInstanceId, deserializeValues: false } },
+            ),
+          ]);
+
+          const parsedOperationsHistory = operationsHistoryResponse.data.map((operation) => {
+            const getNote = () => {
+              if ([OPERATION_TYPE_CLAIM, OPERATION_TYPE_ASSIGN].includes(operation.operationType)) {
+                return operation.newValue ? 'User has claimed the task' : 'User has unclaimed the task';
+              }
+              return `Property ${operation.property} changed from ${operation.orgValue || 'none'} to ${operation.newValue || 'none'}`;
+            };
+            return {
+              date: operation.timestamp,
+              user: operation.userId,
+              note: getNote(operation),
+            };
           });
+          const parsedTaskHistory = taskHistoryResponse.data.map((historyLog) => ({
+            date: historyLog.startTime,
+            user: historyLog.assignee,
+            note: historyLog.name,
+          }));
+          setActivityLog([
+            ...parsedOperationsHistory,
+            ...parsedTaskHistory,
+          ].sort((a, b) => -a.date.localeCompare(b.date)));
 
           const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory'];
-          const parsedTask = variableInstanceResponse.data
+          const parsedTaskVariables = variableInstanceResponse.data
             .filter((t) => whitelistedCamundaVars.includes(t.name))
             .reduce((acc, camundaVar) => {
               acc[camundaVar.name] = JSON.parse(camundaVar.value);
@@ -56,7 +93,7 @@ const TaskDetailsPage = () => {
             }, {});
           setTaskVersions([{
             ...taskResponse.data,
-            ...parsedTask,
+            ...parsedTaskVariables,
           }]);
         } catch (e) {
           setError(e.message);
@@ -514,19 +551,17 @@ const TaskDetailsPage = () => {
 
           <h3 className="govuk-heading-m">Activity</h3>
 
-          <p>TODO</p>
-
-          {[].map((activity) => (
-            <>
+          {activityLog.map((activity) => (
+            <React.Fragment key={activity.date}>
               <p className="govuk-body-s govuk-!-margin-bottom-2">
                 <span className="govuk-!-font-weight-bold">
                   {new Date(activity.date).toLocaleDateString()}
                 </span>
                 &nbsp;at <span className="govuk-!-font-weight-bold">{new Date(activity.date).toLocaleTimeString()}</span>
-                &nbsp;by <a href={`mailto:${activity.by}`}>{activity.by}</a>
+                {activity.user && <>&nbsp;by <a href={`mailto:${activity.user}`}>{activity.user}</a></>}
               </p>
               <p className="govuk-body">{activity.note}</p>
-            </>
+            </React.Fragment>
           ))}
         </div>
       </div>
