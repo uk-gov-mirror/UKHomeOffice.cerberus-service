@@ -104,7 +104,8 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.getUnassignedTasks().then((tasks) => {
       const taskId = tasks.map(((item) => item.id));
       expect(taskId.length).to.not.equal(0);
-      cy.window().then((win) => win.location.href = `/tasks/${taskId[0]}`);
+
+      cy.visit(`/tasks/${taskId[0]}`);
       cy.wait('@tasksDetails').then(({ response }) => {
         expect(response.statusCode).to.equal(200);
       });
@@ -112,14 +113,15 @@ describe('Render tasks from Camunda and manage them on task management and detai
 
     cy.get('.govuk-heading-xl').should('have.text', 'Task details');
 
-    cy.get('.link-button').focus().should('have.text', 'Claim').focused()
-      .click();
+    cy.wait(2000);
+
+    cy.get('button.link-button').should('be.visible').click();
 
     cy.get('.formio-component-note textarea')
       .should('be.visible')
       .type(taskNotes, { force: true });
 
-    cy.get('.formio-component-submit button').click();
+    cy.get('.formio-component-submit button').click('top');
 
     cy.wait('@notes').then(({ response }) => {
       expect(response.statusCode).to.equal(200);
@@ -128,6 +130,8 @@ describe('Render tasks from Camunda and manage them on task management and detai
         expect(message).to.equal(taskNotes);
       });
     });
+
+    cy.get('button.link-button').should('be.visible').click();
   });
 
   it('Should not show Notes for the tasks which is not assigned', () => {
