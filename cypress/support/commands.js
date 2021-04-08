@@ -5,9 +5,9 @@ let token;
 Cypress.Commands.add('login', (userName) => {
   cy.kcLogout();
   cy.kcLogin(userName).as('tokens');
+  cy.log(`${Cypress.env('keycloakUrl')}/auth/realms/cop-dev/protocol/openid-connect/token`);
+  cy.intercept('POST', `${Cypress.env('keycloakUrl')}/auth/realms/cop-dev/protocol/openid-connect/token`).as('token');
   cy.visit('/');
-
-  cy.intercept('POST', '/auth/realms/cop-dev/protocol/openid-connect/token').as('token');
 
   cy.wait('@token').then(({ response }) => {
     token = response.body.access_token;
