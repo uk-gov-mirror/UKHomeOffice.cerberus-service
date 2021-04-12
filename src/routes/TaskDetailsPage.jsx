@@ -5,7 +5,7 @@ import * as pluralise from 'pluralise';
 import axios from 'axios';
 import { get } from 'lodash';
 import { Formio, Form } from 'react-formio';
-import gds from '@digitalpatterns/formio-gds-template/lib';
+import gds from '@ukhomeoffice/formio-gds-template/lib';
 
 import config from '../config';
 import { LONG_DATE_FORMAT } from '../constants';
