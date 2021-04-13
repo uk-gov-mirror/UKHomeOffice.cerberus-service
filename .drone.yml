@@ -185,6 +185,53 @@ steps:
     event:
     - push
 
+- name: deploy_to_sit
+  pull: if-not-exists
+  image: quay.io/ukhomeofficedigital/kd
+  commands:
+  - export CERBERUS_UI_TAG=$${DRONE_COMMIT_SHA}
+  - kd --insecure-skip-tls-verify -f kube/cert.yml
+  - kd --insecure-skip-tls-verify -f kube/network-policy.yml
+  - kd --insecure-skip-tls-verify -f kube/service.yml
+  - kd --insecure-skip-tls-verify -f kube/deployment.yml --timeout=5m
+  - kd --insecure-skip-tls-verify -f kube/ingress.yml
+  environment:
+    DEPLOY_ENV: sit
+    KEYCLOAK_AUTH_URL:
+      from_secret: SIT_KEYCLOAK_URL
+    KEYCLOAK_CLIENT_ID:
+      from_secret: SIT_CERBERUS_UI_SERVICE_KEYCLOAK_CLIENT_ID
+    KEYCLOAK_REALM:
+      from_secret: SIT_KEYCLOAK_REALM
+    CERBERUS_UI_IMAGE: quay.io/ukhomeofficedigital/cerberus-ui-service
+    CERBERUS_UI_NAME: cerberus-ui-service
+    CERBERUS_UI_PORT: 8080
+    CERBERUS_UI_URL:
+      from_secret: SIT_CERBERUS_UI_SERVICE_URL
+    KUBE_NAMESPACE:
+      from_secret: SIT_KUBE_NAMESPACE_COP_CERBERUS
+    KUBE_SERVER:
+      from_secret: SIT_KUBE_SERVER
+    KUBE_TOKEN:
+      from_secret: SIT_CERBERUS_KUBE_TOKEN
+    NGINX_IMAGE:
+      from_secret: NGINX_IMAGE
+    NGINX_TAG:
+      from_secret: NGINX_TAG
+    FORM_API_URL:
+      from_secret: SIT_API_FORM_URL
+    REFDATA_API_URL:
+      from_secret: SIT_REFDATA_API_URL
+    CERBERUS_WORKFLOW_SERVICE_URL:
+      from_secret: SIT_CERBERUS_SERVICE_URL
+  when:
+    branch:
+    - main
+    event:
+    - promote
+    target:
+    - sit
+
 - name: deploy_to_staging
   pull: if-not-exists
   image: quay.io/ukhomeofficedigital/kd
