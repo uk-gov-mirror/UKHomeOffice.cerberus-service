@@ -209,11 +209,11 @@ steps:
     CERBERUS_UI_URL:
       from_secret: SIT_CERBERUS_UI_SERVICE_URL
     KUBE_NAMESPACE:
-      from_secret: SIT_KUBE_NAMESPACE_COP
+      from_secret: SIT_KUBE_NAMESPACE_COP_CERBERUS
     KUBE_SERVER:
       from_secret: SIT_KUBE_SERVER
     KUBE_TOKEN:
-      from_secret: SIT_KUBE_TOKEN
+      from_secret: SIT_CERBERUS_KUBE_TOKEN
     NGINX_IMAGE:
       from_secret: NGINX_IMAGE
     NGINX_TAG:
