@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Formio, Form } from 'react-formio';
-import gds from '@digitalpatterns/formio-gds-template/lib';
+import gds from '@ukhomeoffice/formio-gds-template/lib';
 import { isEmpty } from 'lodash';
 
 import config from '../config';
