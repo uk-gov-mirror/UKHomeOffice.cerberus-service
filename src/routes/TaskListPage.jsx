@@ -17,6 +17,7 @@ import ErrorSummary from '../govuk/ErrorSummary';
 
 import './__assets__/TaskListPage.scss';
 import ClaimButton from '../components/ClaimTaskButton';
+import { useKeycloak } from '../utils/keycloak';
 
 const TaskListPage = () => {
   const [activePage, setActivePage] = useState(0);
@@ -30,7 +31,8 @@ const TaskListPage = () => {
   const index = activePage - 1;
   const offset = index * itemsPerPage;
   const totalPages = Math.ceil(taskCount / itemsPerPage);
-  const camundaClient = useAxiosInstance(config.camundaApiUrl);
+  const keycloak = useKeycloak();
+  const camundaClient = useAxiosInstance(keycloak, config.camundaApiUrl);
   const source = axios.CancelToken.source();
 
   const loadTasks = async () => {
