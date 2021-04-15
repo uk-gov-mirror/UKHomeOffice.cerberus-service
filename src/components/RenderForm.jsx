@@ -16,7 +16,7 @@ Formio.use(gds);
 const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => {} }) => {
   const [error, setError] = useState(null);
   const [form, setForm] = useState({});
-  const [isLoaderVisible, setLoaderVisible] = useState(true);
+  const [isLoaderVisible, setLoaderVisibility] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const keycloak = useKeycloak();
   const formApiClient = useAxiosInstance(keycloak, config.formApiUrl);
@@ -36,7 +36,7 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
         setForm(null);
         setError(e.message);
       } finally {
-        setLoaderVisible(false);
+        setLoaderVisibility(false);
       }
     };
 
@@ -65,17 +65,18 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
           <Form
             form={form}
             onSubmit={async (data) => {
-              setLoaderVisible(true);
+              setLoaderVisibility(true);
               try {
                 await onSubmit(data, form);
                 setSubmitted(true);
               } catch (e) {
                 setError(e.message);
               } finally {
-                setLoaderVisible(false);
+                setLoaderVisibility(false);
               }
             }}
             options={{
+              noAlerts: true,
               hooks: {
                 beforeCancel: async () => {
                   if (onCancel) {
