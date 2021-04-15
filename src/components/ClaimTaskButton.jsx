@@ -4,10 +4,10 @@ import useAxiosInstance from '../utils/axiosInstance';
 import config from '../config';
 import { useKeycloak } from '../utils/keycloak';
 
-const ClaimButton = ({ assignee, taskId, setError = () => {}, ...props }) => {
-  const camundaClient = useAxiosInstance(config.camundaApiUrl);
+const ClaimTaskButton = ({ assignee, taskId, setError = () => {}, ...props }) => {
   const [isAssignmentInProgress, setAssignmentProgress] = useState(false);
   const keycloak = useKeycloak();
+  const camundaClient = useAxiosInstance(keycloak, config.camundaApiUrl);
   const currentUser = keycloak.tokenParsed.email;
 
   const CommonButton = (p) => (
@@ -44,14 +44,13 @@ const ClaimButton = ({ assignee, taskId, setError = () => {}, ...props }) => {
     }
   };
 
-  if (assignee === null || assignee !== currentUser) {
-    return (
-      <CommonButton onClick={handleClaim} {...props}>Claim</CommonButton>
-    );
+  if (assignee === currentUser) {
+    return <CommonButton onClick={handleUnclaim} {...props}>Unclaim</CommonButton>;
   }
-  return (
-    <CommonButton onClick={handleUnclaim} {...props}>Unclaim</CommonButton>
-  );
+  if (!assignee) {
+    return <CommonButton onClick={handleClaim} {...props}>Claim</CommonButton>;
+  }
+  return null;
 };
 
-export default ClaimButton;
+export default ClaimTaskButton;

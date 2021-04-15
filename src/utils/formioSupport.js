@@ -97,10 +97,10 @@ export const augmentRequest = (keycloak) => ({
 });
 
 export const useFormSubmit = () => {
-  const camundaClient = useAxiosInstance(config.camundaApiUrl);
   const keycloak = useKeycloak();
+  const camundaClient = useAxiosInstance(keycloak, config.camundaApiUrl);
 
-  return async (processKey, businessKey, form, submission, onError) => {
+  return async (processKey, businessKey, form, submission) => {
     const { versionId, id, title, name } = form;
     const variables = {
       [name]: {
@@ -120,13 +120,9 @@ export const useFormSubmit = () => {
         type: 'string',
       },
     };
-    try {
-      await camundaClient.post(`/process-definition/key/${processKey}/submit-form`, {
-        variables,
-        businessKey,
-      });
-    } catch (e) {
-      onError(e);
-    }
+    await camundaClient.post(`/process-definition/key/${processKey}/submit-form`, {
+      variables,
+      businessKey,
+    });
   };
 };

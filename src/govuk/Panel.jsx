@@ -15,7 +15,7 @@ const Panel = ({
   return (
     <div className={classNames(className, 'govuk-panel', 'govuk-panel--confirmation')} {...attributes}>
       <Title className="govuk-panel__title">{title}</Title>
-      <div className="govuk-panel__body">{children}</div>
+      {children && <div className="govuk-panel__body">{children}</div>}
     </div>
   );
 };
