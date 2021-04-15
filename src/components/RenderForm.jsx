@@ -13,10 +13,11 @@ import ErrorSummary from '../govuk/ErrorSummary';
 
 Formio.use(gds);
 
-const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => {} }) => {
+const RenderForm = ({ formName, onSubmit, onCancel, preFillData, children, alterForm = () => {} }) => {
   const [error, setError] = useState(null);
   const [form, setForm] = useState({});
   const [isLoaderVisible, setLoaderVisibility] = useState(true);
+  const [formattedPreFillData, setPreFillData] = useState();
   const [submitted, setSubmitted] = useState(false);
   const keycloak = useKeycloak();
   const formApiClient = useAxiosInstance(keycloak, config.formApiUrl);
@@ -40,7 +41,18 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
       }
     };
 
+    const formatPreFillData = () => {
+      if (!preFillData) {
+        setPreFillData(null);
+      } else {
+        let element = {};
+        element.data = { ...preFillData };
+        setPreFillData(element);
+      }
+    };
+
     loadForm();
+    formatPreFillData();
     return () => {
       source.cancel('Cancelling request');
     };
@@ -64,6 +76,7 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
         {!isEmpty(form) && (
           <Form
             form={form}
+            submission={formattedPreFillData}
             onSubmit={async (data) => {
               setLoaderVisibility(true);
               try {

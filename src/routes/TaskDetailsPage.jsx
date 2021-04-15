@@ -358,9 +358,10 @@ const TaskVersions = ({ taskVersions }) => (
   />
 );
 
-const TaskManagementForm = ({ camundaClient, onCancel, taskId, keycloak, ...props }) => (
+const TaskManagementForm = ({ camundaClient, onCancel, taskId, taskData, keycloak, ...props }) => (
   <RenderForm
     onCancel={() => onCancel(false)}
+    preFillData={taskData}
     onSubmit={async (data, form) => {
       const { versionId, id, title, name } = form;
       await camundaClient.post(`/task/${taskId}/submit-form`, {
@@ -580,13 +581,20 @@ const TaskDetailsPage = () => {
               )}
               {isIssueTargetFormOpen && (
                 <>
-                  <h2 className="govuk-heading-m">Check the details before issuing target</h2>
+                  <div className="govuk-warning-text">
+                    <span className="govuk-warning-text__icon" aria-hidden="true">!</span>
+                    <strong className="govuk-warning-text__text">
+                      <span className="govuk-warning-text__assistive">Warning</span>
+                      Check the details before issuing target
+                    </strong>
+                  </div>
                   <TaskManagementForm
                     formName="targetInformationSheet"
                     camundaClient={camundaClient}
                     onCancel={() => setIssueTargetFormOpen(false)}
                     taskId={taskVersions[0].id}
                     keycloak={keycloak}
+                    taskData={taskVersions[0].taskSummary}
                   >
                     <TaskCompletedSuccessMessage message="Target created successfully" />
                   </TaskManagementForm>
