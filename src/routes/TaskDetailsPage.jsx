@@ -534,19 +534,31 @@ const TaskDetailsPage = () => {
                 <>
                   <Button
                     className="govuk-!-margin-right-1"
-                    onClick={() => setIssueTargetFormOpen(true)}
+                    onClick={() => {
+                      setIssueTargetFormOpen(true);
+                      setCompleteFormOpen(false);
+                      setDismissFormOpen(false);
+                    }}
                   >
                     Issue target
                   </Button>
                   <Button
                     className="govuk-button--secondary govuk-!-margin-right-1"
-                    onClick={() => setCompleteFormOpen(true)}
+                    onClick={() => {
+                      setIssueTargetFormOpen(false);
+                      setCompleteFormOpen(true);
+                      setDismissFormOpen(false);
+                    }}
                   >
                     Assessment complete
                   </Button>
                   <Button
                     className="govuk-button--warning"
-                    onClick={() => setDismissFormOpen(true)}
+                    onClick={() => {
+                      setIssueTargetFormOpen(false);
+                      setCompleteFormOpen(false);
+                      setDismissFormOpen(true);
+                    }}
                   >
                     Dismiss
                   </Button>
