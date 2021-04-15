@@ -16,7 +16,7 @@ Formio.use(gds);
 const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => {} }) => {
   const [error, setError] = useState(null);
   const [form, setForm] = useState({});
-  const [formIsLoading, setFormIsLoading] = useState(true);
+  const [isLoaderVisible, setLoaderVisible] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const keycloak = useKeycloak();
   const formApiClient = useAxiosInstance(keycloak, config.formApiUrl);
@@ -36,7 +36,7 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
         setForm(null);
         setError(e.message);
       } finally {
-        setFormIsLoading(false);
+        setLoaderVisible(false);
       }
     };
 
@@ -52,7 +52,7 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
 
   return (
     <>
-      <LoadingSpinner loading={formIsLoading}>
+      <LoadingSpinner loading={isLoaderVisible}>
         {error && (
           <ErrorSummary
             title="There is a problem"
@@ -65,14 +65,14 @@ const RenderForm = ({ formName, onSubmit, onCancel, children, alterForm = () => 
           <Form
             form={form}
             onSubmit={async (data) => {
-              setFormIsLoading(true);
+              setLoaderVisible(true);
               try {
                 await onSubmit(data, form);
                 setSubmitted(true);
               } catch (e) {
                 setError(e.message);
               } finally {
-                setFormIsLoading(false);
+                setLoaderVisible(false);
               }
             }}
             options={{
