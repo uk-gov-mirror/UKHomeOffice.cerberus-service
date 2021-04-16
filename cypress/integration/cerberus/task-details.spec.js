@@ -50,6 +50,8 @@ describe('Render tasks from Camunda and manage them on task management and detai
     });
 
     cy.get('button.link-button').should('be.visible').and('have.text', 'Unclaim').click();
+
+    cy.wait(2000);
   });
 
   it('Should hide Notes Textarea for the tasks assigned to others', () => {
@@ -97,6 +99,8 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.wait(2000);
 
     cy.get('button.link-button').should('have.text', 'Claim').click();
+
+    cy.wait(2000);
   });
 
   after(() => {
