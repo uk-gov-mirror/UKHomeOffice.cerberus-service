@@ -86,8 +86,9 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.url().should('contain', 'page=2');
   });
 
-  it('Should Unclaim a task Successfully from task management page', () => {
+  it('Should Unclaim & claim a task Successfully from task management page', () => {
     cy.intercept('GET', '/camunda/task/*').as('tasksDetails');
+    cy.intercept('POST', '/camunda/task/*/claim').as('claim');
     cy.intercept('POST', '/camunda/task/*/unclaim').as('unclaim');
 
     cy.waitForTaskManagementPageToLoad();
@@ -113,6 +114,10 @@ describe('Render tasks from Camunda and manage them on task management and detai
       .first()
       .should('have.text', 'Claim')
       .click();
+
+    cy.wait('@claim').then(({ response }) => {
+      expect(response.statusCode).to.equal(204);
+    });
 
     cy.wait(2000);
   });
