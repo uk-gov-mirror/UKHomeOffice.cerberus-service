@@ -18,8 +18,8 @@ Cypress.Commands.add('navigation', (option) => {
   cy.contains('a', option).click();
 });
 
-Cypress.Commands.add('waitForTaskManagementPage', () => {
-  cy.intercept('POST', '/camunda/variable-instance?*').as('tasks');
+Cypress.Commands.add('waitForTaskManagementPageToLoad', () => {
+  cy.intercept('POST', '/camunda/variable-instance?**').as('tasks');
   cy.navigation('Tasks');
 
   cy.wait('@tasks').then(({ response }) => {
@@ -57,7 +57,7 @@ Cypress.Commands.add('getUnassignedTasks', () => {
   });
 });
 
-Cypress.Commands.add('getAssignedTasks', () => {
+Cypress.Commands.add('getTasksAssignedToOtherUsers', () => {
   const authorization = `bearer ${token}`;
   const options = {
     method: 'GET',
@@ -69,5 +69,20 @@ Cypress.Commands.add('getAssignedTasks', () => {
 
   cy.request(options).then((response) => {
     return response.body.filter((item) => item.assignee !== 'cypressuser@lodev.xyz');
+  });
+});
+
+Cypress.Commands.add('getTasksAssignedToMe', () => {
+  const authorization = `bearer ${token}`;
+  const options = {
+    method: 'GET',
+    url: '/camunda/task?firstResult=0&maxResults=20',
+    headers: {
+      authorization,
+    },
+  };
+
+  cy.request(options).then((response) => {
+    return response.body.filter((item) => item.assignee === 'cypressuser@lodev.xyz');
   });
 });

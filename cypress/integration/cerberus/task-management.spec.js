@@ -32,14 +32,6 @@ describe('Render tasks from Camunda and manage them on task management and detai
     });
   });
 
-  it('Should navigate to task details page', () => {
-    cy.waitForTaskManagementPage();
-    cy.get('.task-heading a').eq(0).invoke('text').then((text) => {
-      cy.contains(text).click();
-      cy.get('.govuk-caption-xl').should('have.text', text);
-    });
-  });
-
   it('Should hide first and prev buttons on first page', () => {
     cy.navigation('Tasks');
 
@@ -94,63 +86,33 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.url().should('contain', 'page=2');
   });
 
-  it('Should verify notes added for the tasks', () => {
-    const taskNotes = 'Add notes for testing & check it stored';
-    cy.intercept('POST', '/camunda/task/*/comment/create').as('notes');
-    cy.intercept('GET', 'camunda/task/*').as('tasksDetails');
+  it('Should Unclaim a task Successfully from task management page', () => {
+    cy.intercept('GET', '/camunda/task/*').as('tasksDetails');
+    cy.intercept('POST', '/camunda/task/*/unclaim').as('unclaim');
 
-    cy.waitForTaskManagementPage();
+    cy.waitForTaskManagementPageToLoad();
 
-    cy.getUnassignedTasks().then((tasks) => {
-      const taskId = tasks.map(((item) => item.id));
-      expect(taskId.length).to.not.equal(0);
+    cy.get('.pagination--list a').eq(1).click();
 
-      cy.visit(`/tasks/${taskId[0]}`);
-      cy.wait('@tasksDetails').then(({ response }) => {
-        expect(response.statusCode).to.equal(200);
-      });
+    cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
+      .parentsUntil('.govuk-grid-row')
+      .get('button.link-button')
+      .first()
+      .should('have.text', 'Unclaim')
+      .click();
+
+    cy.wait('@unclaim').then(({ response }) => {
+      expect(response.statusCode).to.equal(204);
     });
-
-    cy.get('.govuk-heading-xl').should('have.text', 'Task details');
 
     cy.wait(2000);
 
-    cy.get('button.link-button').should('be.visible').click();
-
-    cy.get('.formio-component-note textarea')
-      .should('be.visible')
-      .type(taskNotes, { force: true });
-
-    cy.get('.formio-component-submit button').click('top');
-
-    cy.wait('@notes').then(({ response }) => {
-      expect(response.statusCode).to.equal(200);
-      expect(response.body.message).to.contain(taskNotes);
-      cy.getTaskNotes(response.body.taskId).then((message) => {
-        expect(message).to.equal(taskNotes);
-      });
-    });
-
-    cy.get('button.link-button').should('be.visible').click();
-  });
-
-  it('Should not show Notes for the tasks which is not assigned', () => {
-    cy.intercept('GET', 'camunda/task/*').as('tasksDetails');
-
-    cy.waitForTaskManagementPage();
-
-    cy.getAssignedTasks().then((tasks) => {
-      const taskId = tasks.map(((item) => item.id));
-      expect(taskId.length).to.not.equal(0);
-      cy.window().then((win) => win.location.href = `/tasks/${taskId[0]}`);
-      cy.wait('@tasksDetails').then(({ response }) => {
-        expect(response.statusCode).to.equal(200);
-      });
-    });
-
-    cy.get('.govuk-heading-xl').should('have.text', 'Task details');
-
-    cy.get('.formio-component-note textarea').should('not.exist');
+    cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
+      .parentsUntil('.govuk-grid-row')
+      .get('button.link-button')
+      .first()
+      .should('have.text', 'Claim')
+      .click();
   });
 
   after(() => {
