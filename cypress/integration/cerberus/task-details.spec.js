@@ -103,6 +103,40 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.wait(2000);
   });
 
+  it('Should Claim a task Successfully from task details page', () => {
+    cy.intercept('GET', '/camunda/task/*').as('tasksDetails');
+    cy.intercept('POST', '/camunda/task/*/claim').as('claim');
+
+    cy.waitForTaskManagementPageToLoad();
+
+    cy.getUnassignedTasks().then((tasks) => {
+      const taskId = tasks.map(((item) => item.id));
+      expect(taskId.length).to.not.equal(0);
+      cy.visit(`/tasks/${taskId[0]}`);
+      cy.wait('@tasksDetails').then(({ response }) => {
+        expect(response.statusCode).to.equal(200);
+      });
+    });
+
+    cy.wait(2000);
+
+    cy.get('p.govuk-body').eq(0).should('contain.text', 'Unassigned');
+
+    cy.get('button.link-button').should('be.visible').and('have.text', 'Claim').click();
+
+    cy.wait('@claim').then(({ response }) => {
+      expect(response.statusCode).to.equal(204);
+    });
+
+    cy.wait(2000);
+
+    cy.get('p.govuk-body').eq(0).should('contain.text', 'Assigned to you');
+
+    cy.get('button.link-button').should('be.visible').and('have.text', 'Unclaim').click();
+
+    cy.wait(2000);
+  });
+
   after(() => {
     cy.contains('Sign out').click();
     cy.get('#kc-page-title').should('contain.text', 'Log In');
