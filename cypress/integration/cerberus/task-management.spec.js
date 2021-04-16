@@ -113,6 +113,8 @@ describe('Render tasks from Camunda and manage them on task management and detai
       .first()
       .should('have.text', 'Claim')
       .click();
+
+    cy.wait(2000);
   });
 
   after(() => {
