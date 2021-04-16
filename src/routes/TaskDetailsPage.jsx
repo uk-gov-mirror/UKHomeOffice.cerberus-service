@@ -28,18 +28,74 @@ const TaskVersions = ({ taskVersions }) => (
     className="task-versions"
     id="task-versions"
     items={taskVersions.slice(0).reverse().map((task, index) => {
-      const { taskSummary } = task;
       const versionNumber = taskVersions.length - index;
-      const vehicle = get(task, 'vehicleHistory[0][0]vehicle', {});
-      const trailer = get(taskSummary, 'trailers[0]', {});
-      const account = taskSummary?.organisations.find(({ type }) => type === 'ORGACCOUNT') || {};
-      const haulier = taskSummary?.organisations.find(({ type }) => type === 'ORGHAULIER') || {};
-      const driver = taskSummary?.people.find(({ role }) => role === 'DRIVER') || {};
-      const passengers = taskSummary?.people.filter(({ role }) => role === 'PASSENGER') || [];
-      const freight = taskSummary?.freight;
+      const {
+        addressHistory: [addresses],
+        contactHistory: [contacts],
+        documentHistory,
+        orgHistory: [organisations],
+        personHistory: [persons],
+        ruleHistory,
+        selectorHistory,
+        serviceMovementHistory,
+        taskSummary,
+        vehicleHistory,
+        vesselHistory,
+        voyageHistory,
+      } = task;
+      const orgAccount = organisations.find(({ organisation: { type } }) => type === 'ORGACCOUNT') || {};
+      const orgHaulier = organisations.find(({ organisation: { type } }) => type === 'ORGHAULIER') || {};
+      const account = {
+        fullName: orgAccount?.organisation.name,
+        shortName: orgAccount?.attributes.attrs.shortName,
+        referenceNumber: orgAccount?.organisation.registrationNumber,
+        fullAddress: addresses.find((address) => {
+          return address.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
+        })?.address.fullAddress,
+        telephone: contacts.find((contact) => {
+          return contact.contact.type === 'LOCTEL'
+          && contact.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
+        })?.contact.value,
+        mobile: contacts.find((contact) => {
+          return contact.contact.type === 'LOCTELMOB'
+          && contact.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
+        })?.contact.value,
+      };
+      const haulier = {
+        name: orgHaulier.organisation?.name,
+        fullAddress: addresses.find((address) => {
+          return address.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
+        })?.address.fullAddress,
+        telephone: contacts.find((contact) => {
+          return contact.contact.type === 'LOCTEL'
+          && contact.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
+        })?.contact.value,
+        mobile: contacts.find((contact) => {
+          return contact.contact.type === 'LOCTELMOB'
+          && contact.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
+        })?.contact.value,
+      };
+      const driver = persons.find(({ attributes: { attrs: { role } } }) => role === 'DRIVER') || {};
+      const passengers = persons.find(({ attributes: { attrs: { role } } }) => role === 'PASSENGER') || [];
+      const vehicle = vehicleHistory[0].find((v) => v.vehicle.type === 'OBJVEHC') || {};
+      const trailer = vehicleHistory[0].find((v) => v.vehicle.type === 'OBJVEHCTRL') || {};
+      const goods = serviceMovementHistory.find(({ movement: { mode } }) => mode !== 'TOURIST') || {};
+      const booking = organisations.find(({ organisation: { type } }) => type === 'ORGBOOKER') || {};
       const consignee = taskSummary?.consignee;
       const consignor = taskSummary?.consignor;
       const matchedRules = get(task, 'ruleHistory[0]', []);
+      console.log(booking);
+
+      const isCargoHazardous = (boolAsString = null) => {
+        if (!boolAsString) {
+          return '';
+        }
+        if (boolAsString === 'false') {
+          return 'No';
+        }
+        return 'Yes';
+      };
+
       return (
         {
           heading: `Version ${versionNumber}`,
@@ -63,47 +119,47 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Registration number</dt>
-                  <dd className="govuk-summary-list__value">{vehicle.registrationNumber}</dd>
+                  <dd className="govuk-summary-list__value">{vehicle.vehicle.registrationNumber}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Type</dt>
-                  <dd className="govuk-summary-list__value">{vehicle.type}</dd>
+                  <dd className="govuk-summary-list__value">{vehicle.attributes?.attrs?.type}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Make</dt>
-                  <dd className="govuk-summary-list__value">{vehicle.make}</dd>
+                  <dd className="govuk-summary-list__value">{vehicle.vehicle.make}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Model</dt>
-                  <dd className="govuk-summary-list__value">{vehicle.model}</dd>
+                  <dd className="govuk-summary-list__value">{vehicle.vehicle.model}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Country of registration</dt>
-                  <dd className="govuk-summary-list__value">{vehicle.registrationCountry}</dd>
+                  <dd className="govuk-summary-list__value">{vehicle.vehicle.registrationCountry}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Trailer registration number</dt>
-                  <dd className="govuk-summary-list__value">{trailer.registrationNumber}</dd>
+                  <dd className="govuk-summary-list__value">{trailer.vehicle?.registrationNumber}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Trailer type</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{trailer.attributes?.attrs?.type}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Trailer country of registration</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{trailer.vehicle?.registrationCountry}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Empty or loaded</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{trailer.attributes?.attrs?.statusOfLoading}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Trailer length</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{trailer.attributes?.attrs?.length}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Trailer height</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{trailer.attributes?.attrs?.height}</dd>
                 </div>
               </dl>
 
@@ -112,27 +168,27 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Full name</dt>
-                  <dd className="govuk-summary-list__value">{account.name}</dd>
+                  <dd className="govuk-summary-list__value">{account.fullName}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Short name</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{account.shortName}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Reference number</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{account.referenceNumber}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Address</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{account.fullAddress}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Telephone</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{account.telephone}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Mobile</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{account.mobile}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Email</dt>
@@ -149,15 +205,15 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Address</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{haulier.fullAddress}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Telephone</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{haulier.telephone}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Mobile</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{haulier.mobile}</dd>
                 </div>
               </dl>
 
@@ -166,7 +222,7 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Name</dt>
-                  <dd className="govuk-summary-list__value">{driver.name}</dd>
+                  <dd className="govuk-summary-list__value">{driver.person?.fullName}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Date of birth</dt>
@@ -174,11 +230,11 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Gender</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{driver.person?.gender}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Nationality</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{driver.person?.nationality}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Travel document type</dt>
@@ -197,10 +253,10 @@ const TaskVersions = ({ taskVersions }) => (
               {passengers.length > 0 && <h2 className="govuk-heading-m">Passengers</h2>}
 
               {passengers.map((passenger) => (
-                <dl key={passenger.name} className="govuk-summary-list govuk-!-margin-bottom-9">
+                <dl key={passenger?.person.fullName} className="govuk-summary-list govuk-!-margin-bottom-9">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Name</dt>
-                    <dd className="govuk-summary-list__value">{passenger.name}</dd>
+                    <dd className="govuk-summary-list__value">{passenger?.person.fullName}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Date of birth</dt>
@@ -208,11 +264,11 @@ const TaskVersions = ({ taskVersions }) => (
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Gender</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{passenger.person?.gender}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Nationality</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{passenger.person?.nationality}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Travel document type</dt>
@@ -234,11 +290,11 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Description of goods</dt>
-                  <dd className="govuk-summary-list__value">{freight?.descriptionOfCargo}</dd>
+                  <dd className="govuk-summary-list__value">{goods?.attributes?.attrs?.descriptionOfCargo}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Is cargo hazardous?</dt>
-                  <dd className="govuk-summary-list__value">{freight?.hazardousCargo === 'true' ? 'Yes' : 'No'}</dd>
+                  <dd className="govuk-summary-list__value">{isCargoHazardous(goods?.attributes?.attrs?.hazardousCargo)}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Weight of goods</dt>
@@ -251,7 +307,7 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Reference</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{booking.attributes?.attrs?.reference}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Ticket number</dt>
@@ -275,11 +331,11 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Country</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{booking.attributes?.attrs?.countryOfBooking}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Payment method</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{booking.attributes?.attrs?.paymentMethod}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Ticket price</dt>
@@ -287,7 +343,7 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Ticket type</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{booking.attributes?.attrs?.ticketType}</dd>
                 </div>
               </dl>
 
@@ -467,12 +523,27 @@ const TaskDetailsPage = () => {
           user: historyLog.assignee,
           note: historyLog.name,
         }));
+
         setActivityLog([
           ...parsedOperationsHistory,
           ...parsedTaskHistory,
         ].sort((a, b) => -a.date.localeCompare(b.date)));
 
-        const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory'];
+        const whitelistedCamundaVars = [
+          'addressHistory',
+          'contactHistory',
+          'documentHistory',
+          'orgHistory',
+          'personHistory',
+          'ruleHistory',
+          'selectorHistory',
+          'serviceMovementHistory',
+          'taskSummary',
+          'vehicleHistory',
+          'vesselHistory',
+          'voyageHistory',
+        ];
+
         const parsedTaskVariables = variableInstanceResponse.data
           .filter((t) => whitelistedCamundaVars.includes(t.name))
           .reduce((acc, camundaVar) => {
