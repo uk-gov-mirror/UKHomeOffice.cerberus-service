@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import moment from 'moment';
 import * as pluralise from 'pluralise';
 import axios from 'axios';
@@ -388,18 +388,6 @@ const TaskManagementForm = ({ camundaClient, onCancel, taskId, taskData, keycloa
   />
 );
 
-const TaskCompletedSuccessMessage = ({ message }) => (
-  <>
-    <Panel title={message} />
-    <p className="govuk-body">We have sent your request to the relevant team.</p>
-    <h2 className="govuk-heading-m">What happens next</h2>
-    <p className="govuk-body">The task is now paused pending a response.</p>
-    <Link to="/tasks" className="govuk-button" data-module="govuk-button">
-      Finish
-    </Link>
-  </>
-);
-
 const NotesForm = ({ camundaClient, taskId }) => (
   <>
     <h2 className="govuk-heading-m">Notes</h2>
@@ -429,6 +417,27 @@ const TaskDetailsPage = () => {
   const [isDismissFormOpen, setDismissFormOpen] = useState();
   const [isIssueTargetFormOpen, setIssueTargetFormOpen] = useState();
   const source = axios.CancelToken.source();
+
+  const TaskCompletedSuccessMessage = ({ message }) => {
+    return (
+      <>
+        <Panel title={message} />
+        <p className="govuk-body">We have sent your request to the relevant team.</p>
+        <h2 className="govuk-heading-m">What happens next</h2>
+        <p className="govuk-body">The task is now paused pending a response.</p>
+        <Button
+          className="govuk-button"
+          onClick={() => {
+            setIssueTargetFormOpen(false);
+            setCompleteFormOpen(false);
+            setDismissFormOpen(false);
+          }}
+        >
+          Finish
+        </Button>
+      </>
+    );
+  };
 
   useEffect(() => {
     const loadTask = async () => {
