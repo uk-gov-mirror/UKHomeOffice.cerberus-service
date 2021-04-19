@@ -87,7 +87,6 @@ describe('Render tasks from Camunda and manage them on task management and detai
   });
 
   it('Should Unclaim & claim a task Successfully from task management page', () => {
-    cy.intercept('GET', '/camunda/task/*').as('tasksDetails');
     cy.intercept('POST', '/camunda/task/*/claim').as('claim');
     cy.intercept('POST', '/camunda/task/*/unclaim').as('unclaim');
 
@@ -96,11 +95,11 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.get('.pagination--list a').eq(1).click();
 
     cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
-      .parentsUntil('.govuk-grid-row')
-      .get('button.link-button')
-      .first()
-      .should('have.text', 'Unclaim')
-      .click();
+      .parentsUntil('.task-list--item').within(() => {
+        cy.get('button.link-button')
+        .should('have.text', 'Unclaim')
+          .click();
+    });
 
     cy.wait('@unclaim').then(({ response }) => {
       expect(response.statusCode).to.equal(204);
@@ -109,11 +108,11 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.wait(2000);
 
     cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
-      .parentsUntil('.govuk-grid-row')
-      .get('button.link-button')
-      .first()
-      .should('have.text', 'Claim')
-      .click();
+        .parentsUntil('.task-list--item').within(() => {
+           cy.get('button.link-button')
+          .should('have.text', 'Claim')
+          .click();
+    });
 
     cy.wait('@claim').then(({ response }) => {
       expect(response.statusCode).to.equal(204);
