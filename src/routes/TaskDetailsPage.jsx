@@ -474,7 +474,7 @@ const TaskDetailsPage = () => {
           ...parsedTaskHistory,
         ].sort((a, b) => -a.date.localeCompare(b.date)));
 
-        const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory'];
+        const whitelistedCamundaVars = ['taskSummary', 'vehicleHistory', 'orgHistory', 'ruleHistory', 'targetInformationSheet'];
         const parsedTaskVariables = variableInstanceResponse.data
           .filter((t) => whitelistedCamundaVars.includes(t.name))
           .reduce((acc, camundaVar) => {
@@ -606,7 +606,7 @@ const TaskDetailsPage = () => {
                     onCancel={() => setIssueTargetFormOpen(false)}
                     taskId={taskVersions[0].id}
                     keycloak={keycloak}
-                    taskData={taskVersions[0].taskSummary}
+                    taskData={taskVersions[0].targetInformationSheet}
                   >
                     <TaskCompletedSuccessMessage message="Target created successfully" />
                   </TaskManagementForm>
