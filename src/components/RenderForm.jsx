@@ -112,6 +112,13 @@ const RenderForm = ({ formName, onSubmit, onCancel, preFillData, children }) => 
                 setLoaderVisibility(false);
               }
             }}
+            onNextPage={() => {
+              window.scrollTo(0, 0);
+            }}
+            onPrevPage={() => {
+              window.scrollTo(0, 0);
+              setError(null);
+            }}
             options={{
               noAlerts: true,
               hooks: {
