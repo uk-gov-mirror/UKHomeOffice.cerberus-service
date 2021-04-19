@@ -97,9 +97,9 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
       .parentsUntil('.task-list--item').within(() => {
         cy.get('button.link-button')
-        .should('have.text', 'Unclaim')
+          .should('have.text', 'Unclaim')
           .click();
-    });
+      });
 
     cy.wait('@unclaim').then(({ response }) => {
       expect(response.statusCode).to.equal(204);
@@ -108,11 +108,11 @@ describe('Render tasks from Camunda and manage them on task management and detai
     cy.wait(2000);
 
     cy.get('.govuk-grid-row a[href="/tasks/63003627-66f9-11eb-96c5-4ae7c71d76e6"]')
-        .parentsUntil('.task-list--item').within(() => {
-           cy.get('button.link-button')
+      .parentsUntil('.task-list--item').within(() => {
+        cy.get('button.link-button')
           .should('have.text', 'Claim')
           .click();
-    });
+      });
 
     cy.wait('@claim').then(({ response }) => {
       expect(response.statusCode).to.equal(204);
