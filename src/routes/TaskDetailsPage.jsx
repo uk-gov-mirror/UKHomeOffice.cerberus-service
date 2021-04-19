@@ -6,7 +6,7 @@ import axios from 'axios';
 import { get } from 'lodash';
 
 import config from '../config';
-import { LONG_DATE_FORMAT } from '../constants';
+import { LONG_DATE_FORMAT, SHORT_DATE_FORMAT } from '../constants';
 import { useKeycloak } from '../utils/keycloak';
 import useAxiosInstance from '../utils/axiosInstance';
 import Accordion from '../govuk/Accordion';
@@ -28,63 +28,121 @@ const TaskVersions = ({ taskVersions }) => (
     className="task-versions"
     id="task-versions"
     items={taskVersions.slice(0).reverse().map((task, index) => {
+      const poleIdsAvailable = (id, idFlag) => {
+        return id
+          .split(':')
+          .slice(1)
+          .join('')
+          .split(',')
+          .filter((v) => v.includes(`${idFlag}=`));
+      };
+      const findMatchingPoleIds = (id1, id2, flag) => {
+        if (!id1 || !id2) {
+          return null;
+        }
+        const tmp = poleIdsAvailable(id2, flag);
+        return poleIdsAvailable(id1, flag).some((ele) => tmp.includes(ele));
+      };
+      /*
+       * If 'path' specified is found, the 'get' returns the 'type' from the 'obj'
+       * This is used to compare against the value of 'type'
+       * e.g. 'LOCTEL' === 'TEST-TYPE'
+       * If not found the 'get' returns the default value
+       * This is used when no comparison is required in the first part of the conditon
+       * and the comparison will always return true
+       * e.g. 'default-value' === 'default-value'
+      */
+      const objectLookup = (arr, compId, flag, path = null, type = 'default-value') => (
+        arr.find((obj) => (
+          get(obj, path, 'default-value') === type
+          && findMatchingPoleIds(
+            obj.party.poleId.v2.id,
+            compId,
+            flag,
+          )
+        ))
+      );
+      // placeholder until all tasks in task list have 'version' property
+      const versionIndex = taskVersions.length - index - 1;
       const versionNumber = taskVersions.length - index;
-      const {
-        addressHistory: [addresses],
-        contactHistory: [contacts],
-        documentHistory,
-        orgHistory: [organisations],
-        personHistory: [persons],
-        ruleHistory,
-        selectorHistory,
-        serviceMovementHistory,
-        taskSummary,
-        vehicleHistory,
-        vesselHistory,
-        voyageHistory,
-      } = task;
-      const orgAccount = organisations.find(({ organisation: { type } }) => type === 'ORGACCOUNT') || {};
-      const orgHaulier = organisations.find(({ organisation: { type } }) => type === 'ORGHAULIER') || {};
+      const { taskSummary } = task;
+      const orgAccount = task?.orgHistory[versionIndex].find(({ organisation: { type } }) => type === 'ORGACCOUNT') || {};
+      const orgHaulier = task?.orgHistory[versionIndex].find(({ organisation: { type } }) => type === 'ORGHAULIER') || {};
+      const personDriver = task?.personHistory[versionIndex].find(({ attributes: { attrs: { role } } }) => role === 'DRIVER') || {};
+      const personPassengers = task?.personHistory[versionIndex].filter(({ attributes: { attrs: { role } } }) => role === 'PASSENGER') || [];
       const account = {
         fullName: orgAccount?.organisation.name,
         shortName: orgAccount?.attributes.attrs.shortName,
         referenceNumber: orgAccount?.organisation.registrationNumber,
-        fullAddress: addresses.find((address) => {
-          return address.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
-        })?.address.fullAddress,
-        telephone: contacts.find((contact) => {
-          return contact.contact.type === 'LOCTEL'
-          && contact.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
-        })?.contact.value,
-        mobile: contacts.find((contact) => {
-          return contact.contact.type === 'LOCTELMOB'
-          && contact.party.poleId.v2.id === orgAccount.metadata.identityRecord.poleId.v2.id;
-        })?.contact.value,
+        fullAddress: objectLookup(
+          task?.addressHistory[versionIndex],
+          orgAccount.metadata.identityRecord.poleId.v2.id,
+          'P',
+        )?.address.fullAddress,
+        telephone: objectLookup(
+          task?.contactHistory[versionIndex],
+          orgAccount.metadata?.identityRecord.poleId.v2.id,
+          'P',
+          'contact.type',
+          'LOCTEL',
+        )?.contact.value,
+        mobile: objectLookup(
+          task?.contactHistory[versionIndex],
+          orgAccount.metadata?.identityRecord.poleId.v2.id,
+          'P',
+          'contact.type',
+          'LOCTELMOB',
+        )?.contact.value,
       };
       const haulier = {
         name: orgHaulier.organisation?.name,
-        fullAddress: addresses.find((address) => {
-          return address.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
-        })?.address.fullAddress,
-        telephone: contacts.find((contact) => {
-          return contact.contact.type === 'LOCTEL'
-          && contact.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
-        })?.contact.value,
-        mobile: contacts.find((contact) => {
-          return contact.contact.type === 'LOCTELMOB'
-          && contact.party.poleId.v2.id === orgHaulier.metadata?.identityRecord.poleId.v2.id;
-        })?.contact.value,
+        fullAddress: objectLookup(
+          task?.addressHistory[versionIndex],
+          orgHaulier.metadata?.identityRecord.poleId.v2.id,
+          'P',
+        )?.address.fullAddress,
+        telephone: objectLookup(
+          task?.contactHistory[versionIndex],
+          orgHaulier.metadata?.identityRecord.poleId.v2.id,
+          'P',
+          'contact.type',
+          'LOCTEL',
+        )?.contact.value,
+        mobile: objectLookup(
+          task?.contactHistory[versionIndex],
+          orgHaulier.metadata?.identityRecord.poleId.v2.id,
+          'P',
+          'contact.type',
+          'LOCTELMOB',
+        )?.contact.value,
       };
-      const driver = persons.find(({ attributes: { attrs: { role } } }) => role === 'DRIVER') || {};
-      const passengers = persons.find(({ attributes: { attrs: { role } } }) => role === 'PASSENGER') || [];
-      const vehicle = vehicleHistory[0].find((v) => v.vehicle.type === 'OBJVEHC') || {};
-      const trailer = vehicleHistory[0].find((v) => v.vehicle.type === 'OBJVEHCTRL') || {};
-      const goods = serviceMovementHistory.find(({ movement: { mode } }) => mode !== 'TOURIST') || {};
-      const booking = organisations.find(({ organisation: { type } }) => type === 'ORGBOOKER') || {};
+      const driver = {
+        ...personDriver,
+        driverDocument: {
+          ...objectLookup(
+            task.documentHistory[versionIndex],
+            personDriver.metadata?.identityRecord.poleId.v2.id,
+            'P',
+          ),
+        },
+      };
+      const passengers = personPassengers.map((passenger) => {
+        passenger.passengerDocument = {
+          ...objectLookup(
+            task.documentHistory[versionIndex],
+            passenger.metadata?.identityRecord.poleId.v2.id,
+            'P',
+          ) || {},
+        };
+      });
+      const vehicle = task?.vehicleHistory[versionIndex].find((v) => v.vehicle.type === 'OBJVEHC') || {};
+      const trailer = task?.vehicleHistory[versionIndex].find((v) => v.vehicle.type === 'OBJVEHCTRL') || {};
+      const goods = task?.serviceMovementHistory[versionIndex];
+      const booking = task?.orgHistory[versionIndex].find(({ organisation: { type } }) => type === 'ORGBOOKER') || {};
+      const matchedRules = task?.ruleHistory[versionIndex] || [];
+      const riskIndicators = task?.selectorHistory[versionIndex] || [];
       const consignee = taskSummary?.consignee;
       const consignor = taskSummary?.consignor;
-      const matchedRules = get(task, 'ruleHistory[0]', []);
-      console.log(booking);
 
       const isCargoHazardous = (boolAsString = null) => {
         if (!boolAsString) {
@@ -107,7 +165,7 @@ const TaskVersions = ({ taskVersions }) => (
               <div className="task-versions--right">
                 <ul className="govuk-list">
                   <li>{pluralise.withCount(0, '% change', '% changes', 'No changes')} in this version</li>
-                  <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">{taskSummary?.matchedSelectors[0].priority}</strong> from version {versionNumber}</li>
+                  <li>Highest threat level is <strong className="govuk-tag govuk-tag--red">{taskSummary?.matchedSelectors[versionIndex].priority}</strong> from version {versionNumber}</li>
                 </ul>
               </div>
             </>
@@ -226,7 +284,7 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Date of birth</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{moment(driver.person?.dateOfBirth).format(SHORT_DATE_FORMAT)}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Gender</dt>
@@ -238,15 +296,15 @@ const TaskVersions = ({ taskVersions }) => (
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Travel document type</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{driver.driverDocument?.attributes?.attrs?.documentType}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Travel document number</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{driver.driverDocument?.document?.value}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Travel document expiry</dt>
-                  <dd className="govuk-summary-list__value">TODO</dd>
+                  <dd className="govuk-summary-list__value">{moment(driver.driverDocument?.document?.expiryDate).format(SHORT_DATE_FORMAT)}</dd>
                 </div>
               </dl>
 
@@ -256,11 +314,11 @@ const TaskVersions = ({ taskVersions }) => (
                 <dl key={passenger?.person.fullName} className="govuk-summary-list govuk-!-margin-bottom-9">
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Name</dt>
-                    <dd className="govuk-summary-list__value">{passenger?.person.fullName}</dd>
+                    <dd className="govuk-summary-list__value">{passenger.person?.fullName}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Date of birth</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{moment(passenger.person?.dateOfBirth).format(SHORT_DATE_FORMAT)}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Gender</dt>
@@ -272,15 +330,15 @@ const TaskVersions = ({ taskVersions }) => (
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Travel document type</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{passenger.passengerDocument?.attributes?.attrs?.documentType}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Travel document number</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{passenger.passengerDocument?.document?.value}</dd>
                   </div>
                   <div className="govuk-summary-list__row">
                     <dt className="govuk-summary-list__key">Travel document expiry</dt>
-                    <dd className="govuk-summary-list__value">TODO</dd>
+                    <dd className="govuk-summary-list__value">{moment(passenger.passengerDocument?.document?.expiryDate).format(SHORT_DATE_FORMAT)}</dd>
                   </div>
                 </dl>
               ))}
@@ -290,11 +348,11 @@ const TaskVersions = ({ taskVersions }) => (
               <dl className="govuk-summary-list govuk-!-margin-bottom-9">
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Description of goods</dt>
-                  <dd className="govuk-summary-list__value">{goods?.attributes?.attrs?.descriptionOfCargo}</dd>
+                  <dd className="govuk-summary-list__value">{goods.attributes?.attrs?.descriptionOfCargo}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Is cargo hazardous?</dt>
-                  <dd className="govuk-summary-list__value">{isCargoHazardous(goods?.attributes?.attrs?.hazardousCargo)}</dd>
+                  <dd className="govuk-summary-list__value">{isCargoHazardous(goods.attributes?.attrs?.hazardousCargo)}</dd>
                 </div>
                 <div className="govuk-summary-list__row">
                   <dt className="govuk-summary-list__key">Weight of goods</dt>
@@ -374,7 +432,6 @@ const TaskVersions = ({ taskVersions }) => (
               </dl>
 
               {matchedRules.length > 0 && <h2 className="govuk-heading-m">Rules matched</h2>}
-
               {matchedRules.map((rule) => (
                 <dl key={rule.ruleName} className="govuk-summary-list govuk-!-margin-bottom-9">
                   <div className="govuk-summary-list__row">
@@ -404,8 +461,30 @@ const TaskVersions = ({ taskVersions }) => (
                 </dl>
               ))}
 
-              <h2 className="govuk-heading-m">Risk factors</h2>
-              <p>TODO</p>
+              {riskIndicators.length
+                && (
+                  <table className="govuk-table">
+                    <caption className="govuk-table__caption govuk-table__caption--m">Risk indicators ({riskIndicators.length})</caption>
+                    <thead className="govuk-table__head">
+                      <tr className="govuk-table__row">
+                        <th scope="col" className="govuk-table__header">Type</th>
+                        <th scope="col" className="govuk-table__header">Condition 1</th>
+                        <th scope="col" className="govuk-table__header">Expression</th>
+                        <th scope="col" className="govuk-table__header">Condition 2</th>
+                      </tr>
+                    </thead>
+                    <tbody className="govuk-table__body">
+                      {riskIndicators.map((risk) => (
+                        <tr key={risk.selectorReference} className="govuk-table__row">
+                          <td className="govuk-table__cell">TODO</td>
+                          <td className="govuk-table__cell">TODO</td>
+                          <td className="govuk-table__cell">TODO</td>
+                          <td className="govuk-table__cell">TODO</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
             </>
           ),
         }
@@ -529,23 +608,8 @@ const TaskDetailsPage = () => {
           ...parsedTaskHistory,
         ].sort((a, b) => -a.date.localeCompare(b.date)));
 
-        const whitelistedCamundaVars = [
-          'addressHistory',
-          'contactHistory',
-          'documentHistory',
-          'orgHistory',
-          'personHistory',
-          'ruleHistory',
-          'selectorHistory',
-          'serviceMovementHistory',
-          'taskSummary',
-          'vehicleHistory',
-          'vesselHistory',
-          'voyageHistory',
-        ];
-
         const parsedTaskVariables = variableInstanceResponse.data
-          .filter((t) => whitelistedCamundaVars.includes(t.name))
+          .filter((t) => t.type === 'Json')
           .reduce((acc, camundaVar) => {
             acc[camundaVar.name] = JSON.parse(camundaVar.value);
             return acc;
