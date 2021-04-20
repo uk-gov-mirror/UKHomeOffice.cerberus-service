@@ -15,9 +15,9 @@ import LoadingSpinner from '../forms/LoadingSpinner';
 import ErrorSummary from '../govuk/ErrorSummary';
 import ClaimButton from '../components/ClaimTaskButton';
 import RenderForm from '../components/RenderForm';
+import Panel from '../govuk/Panel';
 
 import './__assets__/TaskDetailsPage.scss';
-import Panel from '../govuk/Panel';
 
 // See Camunda docs for all operation types: https://docs.camunda.org/javadoc/camunda-bpm-platform/7.7/org/camunda/bpm/engine/history/UserOperationLogEntry.html
 const OPERATION_TYPE_CLAIM = 'Claim';
